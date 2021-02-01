@@ -6,7 +6,6 @@
 +  <metadata>
 +    <id>OfficeReact.Android</id>
 +    <version>$buildNumber$</version>
-+    <version>0.63</version>
 +    <description>Contains Android Implementation of React-Native</description>
 +    <authors>Microsoft</authors>
 +    <projectUrl>https://github.com/microsoft/react-native</projectUrl>
