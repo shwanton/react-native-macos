@@ -1,6 +1,6 @@
 --- "E:\\github\\rnm-63-fresh\\ReactAndroid\\ReactAndroid.nuspec"	1969-12-31 16:00:00.000000000 -0800
 +++ "E:\\github\\rnm-63\\ReactAndroid\\ReactAndroid.nuspec"	2020-10-27 20:20:54.071789900 -0700
-@@ -0,0 +1,140 @@
+@@ -0,0 +1,141 @@
 +<?xml version="1.0" encoding="utf-8"?>
 +<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
 +  <metadata>
@@ -136,7 +136,6 @@
 +    <file src=".\build\third-party-ndk\glog\exported\glog\*.h" target="inc\glog" />
 +    <file src=".\build\third-party-ndk\jsc\JavaScriptCore\*.h" target="inc\jsc"/>
 +    <file src="..\ReactCommon\cxxreact\**\*.h" target="inc\cxxreact"/>
-+    <file src="..\ReactCommon\callinvoker\ReactCommon\*.h" target="inc\ReactCommon"/>
 +    <file src="..\ReactCommon\jsi\**\*.h" target="inc\jsi"/>
 +    <file src="..\ReactCommon\yoga\yoga\**\*.h" target="inc\Yoga"/>
 +  </files>
