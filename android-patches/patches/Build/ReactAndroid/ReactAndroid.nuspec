@@ -136,6 +136,7 @@
 +    <file src=".\build\third-party-ndk\glog\exported\glog\*.h" target="inc\glog" />
 +    <file src=".\build\third-party-ndk\jsc\JavaScriptCore\*.h" target="inc\jsc"/>
 +    <file src="..\ReactCommon\cxxreact\**\*.h" target="inc\cxxreact"/>
++    <file src="..\ReactCommon\callinvoker\ReactCommon\*.h" target="inc\ReactCommon"/>
 +    <file src="..\ReactCommon\jsi\**\*.h" target="inc\jsi"/>
 +    <file src="..\ReactCommon\yoga\yoga\**\*.h" target="inc\Yoga"/>
 +  </files>
