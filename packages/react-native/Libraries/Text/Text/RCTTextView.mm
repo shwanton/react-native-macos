@@ -22,6 +22,8 @@
 #import <QuartzCore/QuartzCore.h>
 
 #if TARGET_OS_OSX // [macOS
+#import <React/RCTRootContentView.h>
+#import <React/RCTTouchHandler.h>
 
 // We are managing the key view loop using the RCTTextView.
 // Disable key view for backed NSTextView so we don't get double focus.
@@ -111,6 +113,19 @@
     return _textView;
 }
 #endif // macOS]
+
+- (RCTTouchHandler *)touchHandler
+{
+  NSView *rootView = self.superview;
+  while (rootView != nil) {
+    if ([rootView isKindOfClass:[RCTRootContentView class]]) {
+      return [(RCTRootContentView*)rootView touchHandler];
+    }
+    rootView = rootView.superview;
+  }
+  
+  return nil;
+}
 
 #if DEBUG // [macOS] description is a debug-only feature
 - (NSString *)description
@@ -397,6 +412,40 @@
   }
 }
 #else // [macOS
+
+- (NSMenu *)textView:(NSTextView *)view menu:(NSMenu *)menu forEvent:(NSEvent *)event atIndex:(NSUInteger)charIndex
+{
+  // Remove items not applicable for readonly text.
+  for (NSMenuItem *item in menu.itemArray) {
+    if (item.action == @selector(cut:) || item.action == @selector(paste:) || [RCTTextView item:item hasSubmenuItemWithAction:@selector(checkSpelling:)] || [RCTTextView item:item hasSubmenuItemWithAction:@selector(orderFrontSubstitutionsPanel:)]) {
+      item.hidden = YES;
+    }
+  }
+
+  if (_additionalMenuItems.count > 0) {
+    [menu insertItem:[NSMenuItem separatorItem] atIndex:0];
+    for (NSMenuItem* item in [_additionalMenuItems reverseObjectEnumerator]) {
+      [menu insertItem:item atIndex:0];
+    }
+  }
+
+  [self.touchHandler willShowMenuWithEvent:event];
+
+  return menu;
+}
+
++ (BOOL)item:(NSMenuItem *)item hasSubmenuItemWithAction:(SEL)action
+{
+  if (!item.hasSubmenu) {
+    return NO;
+  }
+  for (NSMenuItem *submenuItem in item.submenu.itemArray) {
+    if (submenuItem.action == action) {
+      return YES;
+    }
+  }
+  return NO;
+}
 
 - (NSView *)hitTest:(NSPoint)point
 {
