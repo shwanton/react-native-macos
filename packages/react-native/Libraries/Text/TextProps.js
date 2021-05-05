@@ -266,12 +266,22 @@ export type TextProps = $ReadOnly<{|
    */
   lineBreakStrategyIOS?: ?('none' | 'standard' | 'hangul-word' | 'push-out'),
 
+  // [macOS
   /**
    * Specifies the Tooltip for the button view
    *
    * @platform macos
    */
   tooltip?: ?string,
+
+  /**
+   * Specifies a URL so the text behaves like a hyperlink (clicking
+   * it will open the URL and context menu will have appropriate
+   * menu items).
+   *
+   * @platform macos
+   */
+  href?: ?string,
 
   /**
    * When `true`, indicates that the text can be focused in key view loop

@@ -15,6 +15,8 @@ import * as PressabilityDebug from '../Pressability/PressabilityDebug';
 import usePressability from '../Pressability/usePressability';
 import flattenStyle from '../StyleSheet/flattenStyle';
 import processColor from '../StyleSheet/processColor';
+import Linking from '../Linking/Linking';
+import StyleSheet from '../StyleSheet/StyleSheet';
 import Platform from '../Utilities/Platform';
 import TextAncestor from './TextAncestor';
 import {NativeText, NativeVirtualText} from './TextNativeComponent';
@@ -42,6 +44,7 @@ const Text: React.AbstractComponent<
     'aria-label': ariaLabel,
     'aria-selected': ariaSelected,
     ellipsizeMode,
+    href,
     id,
     nativeID,
     onLongPress,
@@ -90,7 +93,7 @@ const Text: React.AbstractComponent<
       : _accessibilityState;
 
   const isPressable =
-    (onPress != null ||
+    (props.href != null || onPress != null ||
       onLongPress != null ||
       onStartShouldSetResponder != null) &&
     _disabled !== true;
@@ -103,7 +106,13 @@ const Text: React.AbstractComponent<
             disabled: !isPressable,
             pressRectOffset: pressRetentionOffset,
             onLongPress,
-            onPress,
+            onPress(event: PressEvent) {
+              onPress?.(event);
+              const isLeftClick = event.nativeEvent.button == 0;
+              if (href && !event.defaultPrevented && isLeftClick) {
+                Linking.openURL(href);
+              }
+            },
             onPressIn(event: PressEvent) {
               // Updating isHighlighted causes unnecessary re-renders for platforms that don't use it
               // in the best case, and cause issues with text selection in the worst case. Forcing
@@ -124,6 +133,7 @@ const Text: React.AbstractComponent<
           }
         : null,
     [
+      href,
       initialized,
       isPressable,
       pressRetentionOffset,
@@ -189,6 +199,11 @@ const Text: React.AbstractComponent<
 
   let style = restProps.style;
 
+  if (href != null) {
+    style = StyleSheet.compose(restProps.style, {
+      cursor: 'pointer',
+    });
+  }
   if (__DEV__) {
     if (PressabilityDebug.isEnabled() && onPress != null) {
       style = [restProps.style, {color: 'magenta'}];
@@ -248,6 +263,7 @@ const Text: React.AbstractComponent<
       {...eventHandlersForText}
       accessibilityLabel={ariaLabel ?? accessibilityLabel}
       accessibilityState={_accessibilityState}
+      href={href}
       isHighlighted={isHighlighted}
       isPressable={isPressable}
       nativeID={id ?? nativeID}
@@ -272,6 +288,7 @@ const Text: React.AbstractComponent<
         allowFontScaling={allowFontScaling !== false}
         disabled={_disabled}
         ellipsizeMode={ellipsizeMode ?? 'tail'}
+        href={href}
         isHighlighted={isHighlighted}
         nativeID={id ?? nativeID}
         numberOfLines={numberOfLines}
