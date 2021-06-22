@@ -137,6 +137,7 @@ static NSString *RCTRecursiveAccessibilityLabel(RCTUIView *view) // [macOS]
   id<RCTEventDispatcherProtocol> _eventDispatcher; // [macOS]
 #if TARGET_OS_OSX // [macOS
   NSTrackingArea *_trackingArea;
+  BOOL _hasClipViewBoundsObserver;
   BOOL _hasMouseOver;
   BOOL _mouseDownCanMoveWindow;
 #endif // macOS]
@@ -778,22 +779,44 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
     [self setShadow:shadow];
 }
 
+- (void)setOnMouseEnter:(RCTDirectEventBlock)onMouseEnter
+{
+  _onMouseEnter = onMouseEnter;
+  [self updateClipViewBoundsObserverIfNeeded];
+}
+
+- (void)setOnMouseLeave:(RCTDirectEventBlock)onMouseLeave
+{
+  _onMouseLeave = onMouseLeave;
+  [self updateClipViewBoundsObserverIfNeeded];
+}
+
 - (void)viewDidMoveToWindow
+{
+  [self updateClipViewBoundsObserverIfNeeded];
+  [super viewDidMoveToWindow];
+}
+
+- (void)updateClipViewBoundsObserverIfNeeded
 {
   // Subscribe to view bounds changed notification so that the view can be notified when a
   // scroll event occurs either due to trackpad/gesture based scrolling or a scrollwheel event
   // both of which would not cause the mouseExited to be invoked.
 
-  if ([self window] == nil) {
+  NSClipView *clipView = self.window ? self.enclosingScrollView.contentView : nil;
+
+  if (_hasClipViewBoundsObserver && (!clipView || (!_onMouseEnter && !_onMouseLeave))) {
+    _hasClipViewBoundsObserver = NO;
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:NSViewBoundsDidChangeNotification
                                                   object:nil];
-  }
-  else if ([[self enclosingScrollView] contentView] != nil) {
+  } else if (!_hasClipViewBoundsObserver && clipView && (_onMouseEnter || _onMouseLeave)) {
+    _hasClipViewBoundsObserver = YES;
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(viewBoundsChanged:)
+                                             selector:@selector(updateMouseOverIfNeeded)
                                                  name:NSViewBoundsDidChangeNotification
-                                               object:[[self enclosingScrollView] contentView]];
+                                               object:clipView];
+    [self updateMouseOverIfNeeded];
   }
 
   [self reactViewDidMoveToWindow]; // [macOS] Github#1412
@@ -801,42 +824,33 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
   [super viewDidMoveToWindow];
 }
 
-- (void)viewBoundsChanged:(NSNotification*)__unused inNotif
+- (void)updateMouseOverIfNeeded
 {
   // When an enclosing scrollview is scrolled using the scrollWheel or trackpad,
   // the mouseExited: event does not get called on the view where mouseEntered: was previously called.
   // This creates an unnatural pairing of mouse enter and exit events and can cause problems.
   // We therefore explicitly check for this here and handle them by calling the appropriate callbacks.
 
-  if (!_hasMouseOver && self.onMouseEnter)
-  {
-    NSPoint locationInWindow = [[self window] mouseLocationOutsideOfEventStream];
-    NSPoint locationInView = [self convertPoint:locationInWindow fromView:nil];
+  BOOL hasMouseOver = _hasMouseOver;
+  NSPoint locationInWindow = self.window.mouseLocationOutsideOfEventStream;
+  NSPoint locationInView = [self convertPoint:locationInWindow fromView:nil];
+  BOOL insideBounds = NSPointInRect(locationInView, self.visibleRect);
 
-    if (NSPointInRect(locationInView, [self bounds]))
-    {
-      _hasMouseOver = YES;
-
-      [self sendMouseEventWithBlock:self.onMouseEnter
-                       locationInfo:[self locationInfoFromDraggingLocation:locationInWindow]
-                      modifierFlags:0
-                     additionalData:nil];
-    }
+  if (hasMouseOver && !insideBounds) {
+    hasMouseOver = NO;
+  } else if (!hasMouseOver && insideBounds) {
+    // The window's frame view must be used for hit testing against `locationInWindow`
+    NSView *hitView = [self.window.contentView.superview hitTest:locationInWindow];
+    hasMouseOver = [hitView isDescendantOf:self];
   }
-  else if (_hasMouseOver && self.onMouseLeave)
-  {
-    NSPoint locationInWindow = [[self window] mouseLocationOutsideOfEventStream];
-    NSPoint locationInView = [self convertPoint:locationInWindow fromView:nil];
 
-    if (!NSPointInRect(locationInView, [self bounds]))
-    {
-      _hasMouseOver = NO;
+  if (hasMouseOver != _hasMouseOver) {
+    _hasMouseOver = hasMouseOver;
 
-      [self sendMouseEventWithBlock:self.onMouseLeave
-                       locationInfo:[self locationInfoFromDraggingLocation:locationInWindow]
-                      modifierFlags:0
-                     additionalData:nil];
-    }
+    [self sendMouseEventWithBlock:(hasMouseOver ? _onMouseEnter : _onMouseLeave)
+                      locationInfo:[self locationInfoFromDraggingLocation:locationInWindow]
+                    modifierFlags:0
+                    additionalData:nil];
   }
 }
 #endif // macOS]
@@ -1515,6 +1529,7 @@ setBorderColor() setBorderColor(Top) setBorderColor(Right) setBorderColor(Bottom
     NSCursor *cursor = NSCursorFromRCTCursor(self.cursor);
     [self addCursorRect:self.bounds cursor:cursor];
   }
+  [self updateMouseOverIfNeeded];
 }
 
 - (BOOL)needsPanelToBecomeKey {
@@ -1551,6 +1566,16 @@ setBorderColor() setBorderColor(Top) setBorderColor(Right) setBorderColor(Bottom
 
 - (void)mouseEntered:(NSEvent *)event
 {
+  if (_hasMouseOver) {
+    return;
+  }
+
+  // The window's frame view must be used for hit testing against `locationInWindow`
+  NSView *hitView = [self.window.contentView.superview hitTest:event.locationInWindow];
+  if (![hitView isDescendantOf:self]) {
+    return;
+  }
+
   _hasMouseOver = YES;
   [self sendMouseEventWithBlock:self.onMouseEnter
                    locationInfo:[self locationInfoFromEvent:event]
@@ -1560,6 +1585,10 @@ setBorderColor() setBorderColor(Top) setBorderColor(Right) setBorderColor(Bottom
 
 - (void)mouseExited:(NSEvent *)event
 {
+  if (!_hasMouseOver) {
+    return;
+  }
+
   _hasMouseOver = NO;
   [self sendMouseEventWithBlock:self.onMouseLeave
                    locationInfo:[self locationInfoFromEvent:event]
