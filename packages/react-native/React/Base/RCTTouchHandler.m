@@ -43,9 +43,6 @@
   __weak RCTPlatformView *_cachedRootView;  // [macOS]
 
   uint16_t _coalescingKey;
-#if TARGET_OS_OSX// [macOS
-  BOOL _shouldSendMouseUpOnSystemBehalf;
-#endif// macOS]
 }
 
 - (instancetype)initWithBridge:(RCTBridge *)bridge
@@ -133,20 +130,6 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)coder)
     // Don't record clicks on scrollbars.
     if ([targetView isKindOfClass:[NSScroller class]]) {
       continue;
-    }
-    // Pair the mouse down events with mouse up events so our _nativeTouches cache doesn't get stale
-    if ([targetView isKindOfClass:[NSControl class]]) {
-      _shouldSendMouseUpOnSystemBehalf = [(NSControl*)targetView isEnabled];
-    } else if ([targetView isKindOfClass:[NSTabView class]]) {
-      // NSTabView sends click events for tab buttons but doesn't inherit from NSControl
-      _shouldSendMouseUpOnSystemBehalf = YES;
-    } else if ([targetView isKindOfClass:[NSText class]]) {
-      _shouldSendMouseUpOnSystemBehalf = [(NSText*)targetView isSelectable];
-    }
-    else if ([targetView.superview isKindOfClass:[RCTUITextField class]]) {
-      _shouldSendMouseUpOnSystemBehalf = [(RCTUITextField*)targetView.superview isSelectable];
-    } else {
-      _shouldSendMouseUpOnSystemBehalf = NO;
     }
     touchLocation = [targetView convertPoint:touchLocation fromView:self.view.superview];
     
@@ -497,22 +480,6 @@ static BOOL RCTAnyTouchesChanged(NSSet *touches) // [macOS]
 {
   [super mouseDown:event];
   [self interactionsBegan:[NSSet setWithObject:event]];
-  // [macOS
-  if (_shouldSendMouseUpOnSystemBehalf) {
-    _shouldSendMouseUpOnSystemBehalf = NO;
-    
-    NSEvent *newEvent = [NSEvent mouseEventWithType:NSEventTypeLeftMouseUp
-                                           location:[event locationInWindow]
-                                      modifierFlags:[event modifierFlags]
-                                          timestamp:[event timestamp]
-                                       windowNumber:[event windowNumber]
-                                            context:nil
-                                        eventNumber:[event eventNumber]
-                                         clickCount:[event clickCount]
-                                           pressure:[event pressure]];
-    [self interactionsEnded:[NSSet setWithObject:newEvent] withEvent:newEvent];
-    // macOS]
-  }
 }
   
 - (void)rightMouseDown:(NSEvent *)event
