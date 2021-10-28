@@ -57,6 +57,8 @@ jobs:
         inputs:
           script: node .ado/bumpFileVersions.js
         condition: ne(variables['Build.SourceBranchName'], 'master')
+        env:
+          BUILD_SOURCEBRANCH: $(Build.SourceBranch)
 
       - task: CmdLine@2
         displayName: Bump canary package version
@@ -148,6 +150,8 @@ jobs:
         displayName: Bump package version
         inputs:
           script: node .ado/bumpOfficeFileVersions.js
+        env:
+          BUILD_SOURCEBRANCH: $(Build.SourceBranch)
 
       # Publish will fail if package.json is marked as private
       - task: CmdLine@2
