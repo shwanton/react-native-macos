@@ -64,6 +64,11 @@ jobs:
       #   displayName: Verify that NuGet was actually created
 
       - task: CmdLine@2
+        displayName: 'Diagnostics'
+        inputs:
+          script: echo $ANDROID_NDK_HOME && echo $ANDROID_NDK_ROOT && echo $ANDROID_SDK_ROOT && cat ${ANDROID_SDK_ROOT}/ndk-bundle/source.properties
+
+      - task: CmdLine@2
         displayName: 'Npm pack'
         inputs:
           script: node .ado/npmOfficePack.js --fake
