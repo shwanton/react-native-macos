@@ -61,6 +61,14 @@ jobs:
           BUILD_SOURCEBRANCH: $(Build.SourceBranch)
 
       - task: CmdLine@2
+        displayName: pod install
+        inputs:
+          script: |
+            cd packages/rn-tester
+            pod install
+        condition: and(succeeded(), ne(variables['Build.SourceBranchName'], 'master'))
+
+      - task: CmdLine@2
         displayName: Bump canary package version
         inputs:
           script: node scripts/bump-oss-version.js --nightly

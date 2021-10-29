@@ -42,8 +42,6 @@ let argv = yargs
   }).argv;
 
 const nightlyBuild = argv.nightly;
-// Nightly builds don't need an update as main will already be up-to-date.
-const updatePodfileLock = !nightlyBuild;
 const ci = argv.ci;
 const rnmpublish = argv.rnmpublish;
 
@@ -55,7 +53,7 @@ if (nightlyBuild) {
   version = `0.0.0-${currentCommit.slice(0, 9)}`;
 } else {
   // Check we are in release branch, e.g. 0.33-stable
-  if (process.env.BUILD_SOURCEBRANCH) {
+  if (process.env.BUILD_SOURCEBRANCHf) {
     branch = process.env.BUILD_SOURCEBRANCH.match(/refs\/heads\/(.*)/)[1];
   } else {
     branch = exec('git symbolic-ref --short HEAD', {
@@ -167,15 +165,6 @@ if (
 
 // Change react-native version in the template's package.json
 exec(`node scripts/set-rn-template-version.js ${version}`);
-
-if (updatePodfileLock) {
-  echo('Updating RNTester Podfile.lock...')
-  if (exec(`pod install`, {cwd: path.resolve(__dirname, '../packages/rn-tester')}).code) {
-    echo('Failed to update RNTester Podfile.lock.');
-    echo('Fix the issue, revert and try again.');
-    exit(1);
-  }
-}
 
 // Verify that files changed, we just do a git diff and check how many times version is added across files
 let numberOfChangedLinesWithNewVersion = exec(
