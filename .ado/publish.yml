@@ -56,7 +56,7 @@ jobs:
         displayName: Bump stable package version
         inputs:
           script: node .ado/bumpFileVersions.js
-        condition: ne(variables['Build.SourceBranchName'], 'master')
+        condition: and(succeeded(), ne(variables['Build.SourceBranchName'], 'master'))
         env:
           BUILD_SOURCEBRANCH: $(Build.SourceBranch)
 
@@ -64,7 +64,7 @@ jobs:
         displayName: Bump canary package version
         inputs:
           script: node scripts/bump-oss-version.js --nightly
-        condition: eq(variables['Build.SourceBranchName'], 'master')
+        condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'master'))
 
       # Publish will fail if package.json is marked as private
       - task: CmdLine@2
@@ -90,7 +90,7 @@ jobs:
           BUILD_SOURCEBRANCH: $(Build.SourceBranch)
           SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           githubApiToken: $(githubApiToken)
-        condition: ne(variables['Build.SourceBranchName'], 'master')
+        condition: and(succeeded(), ne(variables['Build.SourceBranchName'], 'master'))
 
 
   - job: RNMacOSInitNpmJSPublish
