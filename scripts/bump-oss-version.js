@@ -55,7 +55,7 @@ if (nightlyBuild) {
 } else {
   // Check we are in release branch, e.g. 0.33-stable
   if (process.env.BUILD_SOURCEBRANCH) {
-    branch = process.env.BUILD_SOURCEBRANCH;
+    branch = process.env.BUILD_SOURCEBRANCH.match(/refs\/heads\/(.*)/)[1];
   } else {
     branch = exec('git symbolic-ref --short HEAD', {
       silent: true,
