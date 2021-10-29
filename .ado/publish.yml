@@ -66,11 +66,11 @@ jobs:
           BUILD_SOURCEBRANCH: $(Build.SourceBranch)
 
       - task: CmdLine@2
-        displayName: pod install
+        displayName: pod update
         inputs:
           script: |
             cd packages/rn-tester
-            pod install
+            pod update React-TurboModuleCxx-RNW
         condition: and(succeeded(), ne(variables['Build.SourceBranchName'], 'master'))
 
       - task: CmdLine@2
