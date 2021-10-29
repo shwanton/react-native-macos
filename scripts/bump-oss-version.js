@@ -17,6 +17,7 @@
  * All you have to do is push changes to remote and CI will make a new build.
  */
 const fs = require('fs');
+const path = require('path');
 const {cat, echo, exec, exit, sed} = require('shelljs');
 const yargs = require('yargs');
 
@@ -169,7 +170,7 @@ exec(`node scripts/set-rn-template-version.js ${version}`);
 
 if (updatePodfileLock) {
   echo('Updating RNTester Podfile.lock...')
-  if (exec('. scripts/update_podfile_lock.sh && update_pods').code) {
+  if (exec(`pod install`, {cwd: path.resolve(__dirname, '../packages/rn-tester')}).code) {
     echo('Failed to update RNTester Podfile.lock.');
     echo('Fix the issue, revert and try again.');
     exit(1);
