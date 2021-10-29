@@ -16,11 +16,14 @@ trigger:
 
 pr: none
 
+variables:
+  - template: variables/mac.yml
+
 jobs:
   - job: RNGithubNpmJSPublish
     displayName: React-Native GitHub Publish to npmjs.org
     pool:
-      vmImage: ubuntu-18.04
+      vmImage: $(VmImage)
     timeoutInMinutes: 90 # how long to run the job before automatically cancelling
     cancelTimeoutInMinutes: 5 # how much time to give 'run always even if cancelled tasks' before killing them
     steps:
@@ -46,6 +49,8 @@ jobs:
       - bash: echo "##vso[task.setvariable variable=npmDistTag]v${{variables['Build.SourceBranchName']}}"
         displayName: Set dist-tag to v0.x-stable
         condition: and(ne(variables['Build.SourceBranchName'], 'master'), ne(variables['Build.SourceBranchName'], variables.latestStableBranch))
+
+      - template: templates/apple-node-setup.yml
 
       - task: CmdLine@2
         displayName: yarn install
