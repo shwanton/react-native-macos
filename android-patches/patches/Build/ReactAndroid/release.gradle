@@ -8,3 +8,14 @@
          source = android.sourceSets.main.java.srcDirs
          classpath += files(android.bootClasspath)
          classpath += files(project.getConfigurations().getByName("compile").asList())
+@@ -130,7 +131,9 @@ afterEvaluate { project ->
+         }
+     }
+ 
+-    task installArchives(type: Upload) {
++    tasks.mergeReleaseJniLibFolders.dependsOn packageReactNdkLibs
++
++    task installArchives(type: Upload,dependsOn: mergeReleaseJniLibFolders) {
+         configuration = configurations.archives
+         repositories.mavenDeployer {
+             // Deploy to react-native/android, ready to publish to npm
