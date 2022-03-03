@@ -1,18 +1,3 @@
-name: Integrate $(Date:yyyyMMdd).$(Rev:.r)
-
-variables:
-  - template: variables/vars.yml
-
-trigger: none
-pr:
-  branches:
-    include:
-      - main
-      - '*-stable'
-  paths:
-    exclude:
-      - '*.md'
-
 jobs:
   - job: react_native_test_app
     displayName: react-native-test-app
@@ -86,14 +71,9 @@ jobs:
           ../scripts/xcodebuild.sh macos/Example.xcworkspace build
         displayName: Build Intel
         workingDirectory: react-native-test-app/example
-        env:
-          CCACHE_DISABLE: 1
       - bash: |
           set -eo pipefail
           ../scripts/xcodebuild.sh macos/Example.xcworkspace clean
           ../scripts/xcodebuild.sh macos/Example.xcworkspace build ARCHS=arm64
         displayName: Build ARM
         workingDirectory: react-native-test-app/example
-        env:
-          CCACHE_DISABLE: 1
-  - template: apple-integration-jobs.yml

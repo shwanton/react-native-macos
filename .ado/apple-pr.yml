@@ -35,7 +35,7 @@ jobs:
             xcode_version: $(xcode_version)
 
   - job: AppleRNPR
-    displayName: Apple React Native PR
+    displayName: Apple React Native PR [test]
     strategy:
       matrix:
         ios:
