@@ -157,11 +157,9 @@ jobs:
             yarn build
 
       - task: CmdLine@2
-        displayName: yarn [test]
+        displayName: Code tested in other pipeline [test]
         inputs:
-          script: |
-            cd packages/react-native-macos-init
-            yarn test
+          script: Echo this code is tested as part of an integration test. See the 'Verify react-native-macos-init' task.
 
       # - task: CmdLine@2
       #   displayName: "Publish react-native-macos-init to npmjs.org"
