@@ -159,7 +159,7 @@ jobs:
       - task: CmdLine@2
         displayName: Code tested in other pipeline [test]
         inputs:
-          script: Echo this code is tested as part of an integration test. See the 'Verify react-native-macos-init' task.
+          script: echo "This code is tested as part of an integration test. See the 'Verify react-native-macos-init' task."
 
       # - task: CmdLine@2
       #   displayName: "Publish react-native-macos-init to npmjs.org"
