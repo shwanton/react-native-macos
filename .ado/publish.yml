@@ -123,6 +123,8 @@ jobs:
           githubApiToken: $(githubAuthToken)
         condition: and(succeeded(), ne(variables['Build.SourceBranchName'], 'main'))
 
+      - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+        displayName: 'Component Detection'
 
   - job: RNMacOSInitNpmJSPublish
     displayName: react-native-macos-init Publish to npmjs.org
@@ -178,6 +180,9 @@ jobs:
         inputs:
           artifactName: SBom-RNMacOSInitNpmJSPublish-$(System.JobAttempt)
           targetPath: $(System.DefaultWorkingDirectory)/_manifest
+
+      - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+        displayName: 'Component Detection'
 
   - job: RNGithubOfficePublish
     displayName: React-Native GitHub Publish to Office
@@ -249,6 +254,9 @@ jobs:
           PathtoPublish: '$(Build.StagingDirectory)/final'
           ArtifactName: 'ReactNative-Final'
 
+      - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+        displayName: 'Component Detection'
+
   - job: Compliance
     displayName: React-Native GitHub Compliance pipeline
     pool: OE-OfficePublic
@@ -260,3 +268,7 @@ jobs:
         lfs: false # whether to download Git-LFS files
         submodules: recursive # set to 'true' for a single level of submodules or 'recursive' to get submodules of submodules
         persistCredentials: true # set to 'true' to leave the OAuth token in the Git config after the initial fetch
+
+      - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+        displayName: 'Component Detection'
+
