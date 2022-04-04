@@ -16,6 +16,7 @@
 #import <React/RCTTouchHandler.h> // [macOS]
 
 #if TARGET_OS_OSX // [macOS
+#import <React/RCTTouchHandler.h>
 
 #if RCT_SUBCLASS_SECURETEXTFIELD
 #define RCTUITextFieldCell RCTUISecureTextFieldCell
@@ -511,7 +512,9 @@
   }
   return NO;
 }
-  
+
+// TODO(T116349239) Make this work also for RCTUISecureTextField. Despite NSSecureTextField being
+// inherited from NSTextField, this NSTextViewDelegate method is not triggered for it.
 - (NSMenu *)textView:(NSTextView *)view menu:(NSMenu *)menu forEvent:(NSEvent *)event atIndex:(NSUInteger)charIndex
 {
   if (menu) {
