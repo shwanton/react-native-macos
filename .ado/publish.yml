@@ -220,6 +220,8 @@ jobs:
       - template: templates/prep-android-nuget.yml
 
       - template: templates/download-android-dependencies.yml
+        parameters:
+          artifact_feed: Office
 
       # Very similar to the default pack task .. but appends 'ndk21b' to the nuget pack version
       - task: CmdLine@2
