@@ -1213,3 +1213,26 @@ BOOL RCTIsAppActive(void)
   return [RCTSharedApplication() isActive];
 #endif // macOS]
 }
+#if TARGET_OS_OSX
+void RCTHideMenuItemsWithFilterPredicate(NSMenu *menu, RCTMenuItemFilterPredicate shouldFilter)
+{
+  for (NSMenuItem *item in menu.itemArray) {
+      if (shouldFilter(item)) {
+          item.hidden = YES;
+      }
+  }
+}
+
+BOOL RCTMenuItemHasSubmenuItemWithAction(NSMenuItem *item, SEL action)
+{
+  if (!item.hasSubmenu) {
+    return NO;
+  }
+  for (NSMenuItem *submenuItem in item.submenu.itemArray) {
+    if (submenuItem.action == action) {
+      return YES;
+    }
+  }
+  return NO;
+}
+#endif

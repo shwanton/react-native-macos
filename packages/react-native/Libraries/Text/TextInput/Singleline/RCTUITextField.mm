@@ -521,6 +521,11 @@
     [[RCTTouchHandler touchHandlerForView:self] willShowMenuWithEvent:event];
   }
 
+  RCTHideMenuItemsWithFilterPredicate(menu, ^bool(NSMenuItem *item) {
+    // hide font menu option
+    return RCTMenuItemHasSubmenuItemWithAction(item, @selector(orderFrontFontPanel:));
+  });
+
   return menu;
 }
 

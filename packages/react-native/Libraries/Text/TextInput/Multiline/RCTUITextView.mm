@@ -135,6 +135,12 @@ static RCTUIColor *defaultPlaceholderColor(void) // [macOS]
   if (menu) {
     [[RCTTouchHandler touchHandlerForView:self] willShowMenuWithEvent:event];
   }
+
+  RCTHideMenuItemsWithFilterPredicate(menu, ^bool(NSMenuItem *item) {
+    // hide font & layout orientation menu options
+    return (RCTMenuItemHasSubmenuItemWithAction(item, @selector(orderFrontFontPanel:)) || RCTMenuItemHasSubmenuItemWithAction(item, @selector(changeLayoutOrientation:)));
+  });
+
   return menu;
 }
 #endif // macOS]
