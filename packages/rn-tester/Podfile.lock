@@ -395,7 +395,7 @@ PODS:
     - ReactCommon/turbomodule/core (= 0.68.0-rc.2)
   - ScreenshotManager (0.0.1):
     - RCT-Folly (= 2021.06.28.00-v2)
-    - React
+    - React-Core
     - React-TurboModuleCxx-RNW
   - SocketRocket (0.6.0)
   - Yoga (1.14.0)
@@ -566,7 +566,7 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: ed15e075aa758ac0e4c1f8b830bd4e4d40d669e8
   FBLazyVector: 0f84cd916b7dd62bd645703a4c80202eec39be26
-  FBReactNativeSpec: 63bca85248c199e6062d4a436791bc63c225a2fa
+  FBReactNativeSpec: 65498aefc09121f6a641bfba5af46bbde29931dd
   Flipper: 26fc4b7382499f1281eb8cb921e5c3ad6de91fe0
   Flipper-Boost-iOSX: fd1e2b8cbef7e662a122412d7ac5f5bea715403c
   Flipper-DoubleConversion: 57ffbe81ef95306cc9e69c4aa3aeeeeb58a6a28c
@@ -609,7 +609,7 @@ SPEC CHECKSUMS:
   React-TurboModuleCxx-RNW: 5c70f241bf5ccd6a2d282c72eb10fe0e98209852
   React-TurboModuleCxx-WinRTPort: 86a9dfca8222ce4976e1c93d309198310c48a747
   ReactCommon: 49352bc21cff5f247c9cd6c0db818d624568cea1
-  ScreenshotManager: db4b25867db6c0d6e5a42037e9c2990e6a558644
+  ScreenshotManager: e6d64b9235992fa6cdf931a8fa4e149241595911
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
   Yoga: ffae112bcb67f1fcc4f6a72fca094be51227722e
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
