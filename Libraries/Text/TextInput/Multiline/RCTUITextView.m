@@ -237,27 +237,13 @@ static RCTUIColor *defaultPlaceholderColor() // TODO(OSS Candidate ISS#2710739)
   // We try to avoid calling this method as much as we can.
   // If the text has changed, there is nothing we can do.
 #if !TARGET_OS_OSX // TODO(macOS GH#774)
-  if (![super.attributedText.string isEqualToString:attributedText.string]) {
-    [super setAttributedText:attributedText];
-  } else {
-  // But if the text is preserved, we just copying the attributes from the source string.
-    if (![super.attributedText isEqualToAttributedString:attributedText]) {
-      [self copyTextAttributesFrom:attributedText];
-    }
-  }
+  [super setAttributedText:attributedText];
 #else // [TODO(macOS GH#774)
-  if (![self.textStorage isEqualTo:attributedText.string]) {
-    if (attributedText != nil) {
-      [self.textStorage setAttributedString:attributedText];
-    } else {
-      // Avoid Exception thrown while executing UI block: *** -[NSBigMutableString replaceCharactersInRange:withString:]: nil argument
-      [self.textStorage setAttributedString:[NSAttributedString new]];
-    }
+  if (attributedText != nil) {
+    [self.textStorage setAttributedString:attributedText];
   } else {
-    // But if the text is preserved, we just copy the attributes from the source string.
-    if (![self.textStorage isEqualToAttributedString:attributedText]) {
-      [self copyTextAttributesFrom:attributedText];
-    }
+    // Avoid Exception thrown while executing UI block: *** -[NSBigMutableString replaceCharactersInRange:withString:]: nil argument
+    [self.textStorage setAttributedString:[NSAttributedString new]];
   }
 #endif // ]TODO(macOS GH#774)
   [self textDidChange];
@@ -522,19 +508,5 @@ static RCTUIColor *defaultPlaceholderColor() // TODO(OSS Candidate ISS#2710739)
 #endif
 
 #pragma mark - Utility Methods
-
-- (void)copyTextAttributesFrom:(NSAttributedString *)sourceString
-{
-  [self.textStorage beginEditing];
-
-  NSTextStorage *textStorage = self.textStorage;
-  [sourceString enumerateAttributesInRange:NSMakeRange(0, sourceString.length)
-                                   options:NSAttributedStringEnumerationReverse
-                                usingBlock:^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs, NSRange range, BOOL * _Nonnull stop) {
-                                  [textStorage setAttributes:attrs range:range];
-                                }];
-
-  [self.textStorage endEditing];
-}
 
 @end

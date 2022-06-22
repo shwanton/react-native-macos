@@ -281,10 +281,13 @@ task androidSourcesJar(type: Jar) {
 android {
     compileSdkVersion 31
 
-    // Used to override the NDK path & version on internal CI
-    if (System.getenv("ANDROID_NDK") != null && System.getenv("LOCAL_ANDROID_NDK_VERSION") != null) {
-        ndkPath System.getenv("ANDROID_NDK")
-        ndkVersion System.getenv("LOCAL_ANDROID_NDK_VERSION")
+    // Used to override the NDK path/version on internal CI or by allowing
+    // users to customize the NDK path/version from their root project (e.g. for M1 support)
+    if (rootProject.hasProperty("ndkPath")) {
+        ndkPath rootProject.ext.ndkPath
+    }
+    if (rootProject.hasProperty("ndkVersion")) {
+        ndkVersion rootProject.ext.ndkVersion
     }
 
     defaultConfig {
@@ -317,6 +320,11 @@ android {
                 if (Os.isFamily(Os.FAMILY_MAC)) {
                     // This flag will suppress "fcntl(): Bad file descriptor" warnings on local builds.
                     arguments "--output-sync=none"
+                }
+
+                // Fix for windows limit on number of character in file paths and in command lines
+                if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                    arguments "NDK_APP_SHORT_COMMANDS=true"
                 }
             }
         }
@@ -351,6 +359,12 @@ android {
     packagingOptions {
         exclude("META-INF/NOTICE")
         exclude("META-INF/LICENSE")
+        // We intentionally don't want to bundle any JS Runtime inside the Android AAR
+        // we produce. The reason behind this is that we want to allow users to pick the
+        // JS engine by specifying a dependency on either `hermes-engine` or `android-jsc`
+        // that will include the necessary .so files to load.
+        exclude("**/libhermes.so")
+        exclude("**/libjsc.so")
     }
 
     configurations {
@@ -400,7 +414,7 @@ react {
     // This should be changed to a more generic name, e.g. `ReactCoreSpec`.
     libraryName = "rncore"
     jsRootDir = file("../Libraries")
-    reactRoot = file("$projectDir/..")
+    reactNativeDir = file("$projectDir/..")
     useJavaGenerator = System.getenv("USE_CODEGEN_JAVAPOET")?.toBoolean() ?: false
     // We search for the codegen in either one of the `node_modules` folder or in the
     // root packages folder (that's for when we build from source without calling `yarn install`).

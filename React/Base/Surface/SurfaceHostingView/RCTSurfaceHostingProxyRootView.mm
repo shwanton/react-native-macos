@@ -73,13 +73,11 @@ static RCTRootViewSizeFlexibility convertToRootViewSizeFlexibility(RCTSurfaceSiz
   // `RCTRootViewSizeFlexibilityNone` is the RCTRootView's default.
   RCTSurfaceSizeMeasureMode sizeMeasureMode = convertToSurfaceSizeMeasureMode(RCTRootViewSizeFlexibilityNone);
 
-  id<RCTSurfaceProtocol> surface = [[self class] createSurfaceWithBridge:bridge
-                                                              moduleName:moduleName
-                                                       initialProperties:initialProperties];
-  [surface start];
-  if (self = [super initWithSurface:surface sizeMeasureMode:sizeMeasureMode]) {
+  if (self = [super initWithBridge:bridge
+                        moduleName:moduleName
+                 initialProperties:initialProperties
+                   sizeMeasureMode:sizeMeasureMode]) {
     self.backgroundColor = [RCTUIColor whiteColor]; // TODO(macOS GH#774)
-    // Nothing specific to do.
   }
 
   RCT_PROFILE_END_EVENT(RCTProfileTagAlways, @"");

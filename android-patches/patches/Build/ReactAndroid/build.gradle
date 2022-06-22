@@ -47,7 +47,7 @@
  task downloadGlog(dependsOn: createNativeDepsDirectories, type: Download) {
      src("https://github.com/google/glog/archive/v${GLOG_VERSION}.tar.gz")
      onlyIfNewer(true)
-@@ -292,6 +313,7 @@
+@@ -315,6 +336,7 @@
                          "REACT_COMMON_DIR=$projectDir/../ReactCommon",
                          "REACT_GENERATED_SRC_DIR=$buildDir/generated/source",
                          "REACT_SRC_DIR=$projectDir/src/main/java/com/facebook/react",
@@ -55,7 +55,7 @@
                          "-j${ndkBuildJobs()}"
  
                  if (Os.isFamily(Os.FAMILY_MAC)) {
-@@ -311,7 +333,7 @@
+@@ -339,7 +361,7 @@
          }
      }
  

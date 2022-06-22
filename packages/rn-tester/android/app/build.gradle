@@ -80,7 +80,7 @@ react {
     cliPath = "../../../../cli.js"
     bundleAssetName = "RNTesterApp.android.bundle"
     entryFile = file("../../js/RNTesterApp.android.js")
-    reactRoot = rootDir
+    root = rootDir
     inputExcludes = ["android/**", "./**", ".gradle/**"]
     composeSourceMapsPath = "$rootDir/scripts/compose-source-maps.js"
     hermesCommand = "$rootDir/node_modules/hermes-engine/%OS-BIN%/hermesc"
@@ -88,6 +88,7 @@ react {
 
     // Codegen Configs
     jsRootDir = file("$rootDir/packages/rn-tester")
+    reactNativeDir = rootDir
     libraryName = "rntester"
     useJavaGenerator = System.getenv("USE_CODEGEN_JAVAPOET")?.toBoolean() ?: false
 }
@@ -144,10 +145,13 @@ def reactNativeArchitectures() {
 android {
     compileSdkVersion 31
 
-    // Used to override the NDK path & version on internal CI
-    if (System.getenv("ANDROID_NDK") != null && System.getenv("LOCAL_ANDROID_NDK_VERSION") != null) {
-        ndkPath System.getenv("ANDROID_NDK")
-        ndkVersion System.getenv("LOCAL_ANDROID_NDK_VERSION")
+    // Used to override the NDK path/version on internal CI or by allowing
+    // users to customize the NDK path/version from their root project (e.g. for M1 support)
+    if (rootProject.hasProperty("ndkPath")) {
+        ndkPath rootProject.ext.ndkPath
+    }
+    if (rootProject.hasProperty("ndkVersion")) {
+        ndkVersion rootProject.ext.ndkVersion
     }
 
     flavorDimensions "vm"

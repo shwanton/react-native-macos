@@ -20,8 +20,8 @@ namespace facebook::react {
 // TODO(macOS GH#944)]
 constexpr struct {
   int32_t Major = 0;
-  int32_t Minor = 0;
-  int32_t Patch = 0;
+  int32_t Minor = 68;
+  int32_t Patch = 2;
   std::string_view Prerelease = "";
 } ReactNativeVersion;
 

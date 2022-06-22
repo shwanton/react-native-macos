@@ -31,7 +31,7 @@ Pod::Spec.new do |s|
 # ]TODO(macOS GH#774)
   s.requires_arc    = true
 
-  s.dependency "React"
+  s.dependency "React-Core"
   s.dependency "RCT-Folly", folly_version
 
 # [TODO(macOS GH#774)
