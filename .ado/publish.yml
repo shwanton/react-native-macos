@@ -86,6 +86,11 @@ jobs:
           script: node scripts/set-rn-version.js --nightly --autogenerateVersionNumber
         condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'main'))
 
+      - task: CmdLine@2
+        displayName: Code tested in other pipeline [test]
+        inputs:
+          script: echo "This code is tested as part of an integration test. See the 'Verify react-native-macos-init' task."
+
       # Publish will fail if package.json is marked as private
       - task: CmdLine@2
         displayName: Remove workspace config from package.json

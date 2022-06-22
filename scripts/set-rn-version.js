@@ -207,7 +207,7 @@ exec(`node scripts/set-rn-template-version.js ${version}`);
 // [TODO(macOS GH#774)
 if (updatePodfileLock) {
   echo('Updating RNTester Podfile.lock...');
-  if (exec('source scripts/update_podfile_lock.sh && update_pods').code) {
+  if (exec('. scripts/update_podfile_lock.sh && update_pods').code) {
     echo('Failed to update RNTester Podfile.lock.');
     echo('Fix the issue, revert and try again.');
     exit(1);
