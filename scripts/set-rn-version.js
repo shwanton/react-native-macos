@@ -77,12 +77,12 @@ if (!nightlyBuild) {
   if (process.env.BUILD_SOURCEBRANCH) {
     console.log(`BUILD_SOURCEBRANCH: ${process.env.BUILD_SOURCEBRANCH}`);
     branch = process.env.BUILD_SOURCEBRANCH.match(/refs\/heads\/(.*)/)[1];
-    console.log(`Identified branch: ${branch}`);
   } else {
     branch = exec('git symbolic-ref --short HEAD', {
       silent: true,
     }).stdout.trim();
   }
+  console.log(`Identified branch: "${branch}"`);
 
   if (branch.indexOf('-stable') === -1) {
     echo('You must be in 0.XX-stable branch to bump a version');
