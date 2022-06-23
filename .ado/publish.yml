@@ -69,7 +69,7 @@ jobs:
       - task: CmdLine@2
         displayName: bundle install
         inputs:
-          script: bundle install
+          script: rbenv exec bundle install
 
       - task: CmdLine@2
         displayName: Bump stable package version
