@@ -67,6 +67,11 @@ jobs:
           script: yarn install --frozen-lockfile
 
       - task: CmdLine@2
+        displayName: Install Ruby 2.7.5 if needed
+        inputs:
+          script: rbenv install -s 2.7.5
+
+      - task: CmdLine@2
         displayName: bundle install
         inputs:
           script: rbenv exec bundle install
