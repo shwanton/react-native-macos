@@ -3,12 +3,13 @@ new file mode 100644
 index 0000000000..16de96d215
 --- /dev/null
 +++ b/ReactAndroid/src/main/java/com/facebook/react/v8executor/V8ExecutorFactory.cpp
-@@ -0,0 +1,39 @@
+@@ -0,0 +1,40 @@
 +#include <jsi/jsi.h>
 +#include <V8Runtime.h>
 +#include <jsireact/JSIExecutor.h>
 +#include <react/jni/JSLoader.h>
 +#include <react/jni/JSLogging.h>
++#include <react/jni/NativeTime.h>
 +
 +#include "V8ExecutorFactory.h"
 +
