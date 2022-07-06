@@ -46,7 +46,7 @@ if (rubyInstallError !== undefined) {
 
   const gemfileContents = fs.readFileSync('Gemfile').toString();
   const newGemfileContents = gemfileContents.split('\n').filter(line => {
-    return line.match(/^ruby\s+'(.+)$'/) === null;
+    return line.match(/^ruby\s+'(.+)'$/) === null;
   }).join('\n');
   fs.writeFileSync('Gemfile', newGemfileContents);
 
