@@ -44,6 +44,7 @@ if (rubyInstallError !== undefined) {
 
   console.log(`Attempting to use system version of Ruby ${systemRubyVersion}...`);
 
+  // Remove ruby version from Gemfile
   const gemfileContents = fs.readFileSync('Gemfile').toString();
   const newGemfileContents = gemfileContents.split('\n').filter(line => {
     return line.match(/^ruby\s+'(.+)'$/) === null;
