@@ -1,0 +1,14 @@
+diff --git a/packages/rn-tester/android/app/build.gradle b/packages/rn-tester/android/app/build.gradle
+index 7f04213604..aeaad944c7 100644
+--- a/packages/rn-tester/android/app/build.gradle
++++ b/packages/rn-tester/android/app/build.gradle
+@@ -151,6 +151,9 @@ android {
+         jsc {
+             dimension "vm"
+         }
++        v8 {
++            dimension "vm"
++        }
+     }
+ 
+     defaultConfig {
