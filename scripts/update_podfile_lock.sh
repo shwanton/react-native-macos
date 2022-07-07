@@ -20,6 +20,8 @@ validate_env () {
 
 update_pods () {
   cd "$RNTESTER_DIR" || exit
+  bundle config set --local path ../../vendor/bundle
+  bundle install || exit
   bundle check || exit
   bundle exec pod install
   cd "$THIS_DIR" || exit
