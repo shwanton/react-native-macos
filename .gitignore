@@ -102,6 +102,7 @@ package-lock.json
 # Ruby Gems (Bundler)
 /vendor
 /template/vendor
+/packages/rn-tester/.bundle/
 
 # iOS / CocoaPods
 /template/ios/build/
@@ -126,3 +127,6 @@ package-lock.json
 
 # Android memory profiler files
 *.hprof
+
+# SBoM manifest
+/_manifest/
