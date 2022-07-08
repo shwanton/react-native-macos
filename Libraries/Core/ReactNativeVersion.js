@@ -9,7 +9,6 @@
  * @flow strict
  */
 
-
 // [TODO(macOS GH#944)
 // Note: Be careful not to override these version numbers
 // when we merge upstream stable branches into main
@@ -17,6 +16,6 @@
 exports.version = {
   major: 0,
   minor: 68,
-  patch: 3,
+  patch: 4,
   prerelease: null,
 };
