@@ -207,7 +207,10 @@ exec(`node scripts/set-rn-template-version.js ${version}`);
 // [TODO(macOS GH#774)
 if (updatePodfileLock) {
   echo('Updating RNTester Podfile.lock...');
-  if (exec('. scripts/update_podfile_lock.sh && update_pods', {shell: 'bash'}).code) {
+  if (
+    exec('. scripts/update_podfile_lock.sh && update_pods', {shell: 'bash'})
+      .code
+  ) {
     echo('Failed to update RNTester Podfile.lock.');
     echo('Fix the issue, revert and try again.');
     exit(1);
@@ -258,7 +261,10 @@ if (!nightlyBuild) {
   // Update Podfile.lock only on release builds, not nightlies.
   // Nightly builds don't need it as the main branch will already be up-to-date.
   echo('Updating RNTester Podfile.lock...');
-  if (exec('. scripts/update_podfile_lock.sh && update_pods', {shell: 'bash'}).code) {
+  if (
+    exec('. scripts/update_podfile_lock.sh && update_pods', {shell: 'bash'})
+      .code
+  ) {
     echo('Failed to update RNTester Podfile.lock.');
     echo('Fix the issue, revert and try again.');
     exit(1);
