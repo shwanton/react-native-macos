@@ -207,6 +207,18 @@ jobs:
 
       - template: templates/android-build-office.yml
 
+      - template: templates/apple-node-setup.yml
+
+      - task: CmdLine@2
+        displayName: Fix permissions for gem
+        inputs:
+          script: sudo chown -R $(whoami) /var/lib/gems/*
+
+      - task: CmdLine@2
+        displayName: Install bundler
+        inputs:
+          script: gem install bundler
+
       - task: CmdLine@2
         displayName: Bump package version
         inputs:
