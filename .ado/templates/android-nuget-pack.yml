@@ -12,4 +12,4 @@ steps:
   - task: CmdLine@2
     displayName: 'NuGet pack'
     inputs:
-      script: NDK=ndk`./gradlew -q ReactAndroid:properties | grep ndkVersion | awk '{print $2}' | awk -F. '{print $1}'`; mono $(System.DefaultWorkingDirectory)/nuget-bin/nuget.exe pack $(System.DefaultWorkingDirectory)/ReactAndroid/ReactAndroid.nuspec -OutputDirectory $(Build.StagingDirectory)/final -Properties buildNumber=$(buildNumber)-$NDK\;commitId=$(Build.SourceVersion)
+      script: NDK=ndk`$(System.DefaultWorkingDirectory)/gradlew -q ReactAndroid:properties | grep ndkVersion | awk '{print $2}' | awk -F. '{print $1}'`; mono $(System.DefaultWorkingDirectory)/nuget-bin/nuget.exe pack $(System.DefaultWorkingDirectory)/ReactAndroid/ReactAndroid.nuspec -OutputDirectory $(Build.StagingDirectory)/final -Properties buildNumber=$(buildNumber)-$NDK\;commitId=$(Build.SourceVersion)
