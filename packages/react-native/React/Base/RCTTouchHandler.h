@@ -26,6 +26,7 @@
 
 - (void)willShowMenuWithEvent:(NSEvent *)event;
 - (void)cancelTouchWithEvent:(NSEvent *)event;
+- (void)willShowMenu;
 #endif // macOS]
 
 @end

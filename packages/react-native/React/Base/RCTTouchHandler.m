@@ -599,10 +599,30 @@ static BOOL RCTAnyTouchesChanged(NSSet *touches) // [macOS]
   return nil;
 }
 
+// Showing a context menu via RightMouseDown prevents receiving RightMouseUp event
+// and propagating touchEnd event to JS side, leaving the Responder state machine
+// on JS side (in Pressabity.js) in an intermediate state, that will not be able to
+// process the next interaction correctly.
+
+// To avoid this, we end the interaction proactively on RightMouseDown if we know it
+// triggers a context menu.
+
+// (Note this is not an issue for left clicks: context menu on left clicks is only shown
+// on LeftMouseUp)
 - (void)willShowMenuWithEvent:(NSEvent *)event
 {
   if (event.type == NSEventTypeRightMouseDown) {
     [self interactionsEnded:[NSSet setWithObject:event] withEvent:event];
+  }
+}
+  
+- (void)willShowMenu
+{
+  for (NSEvent* event in _nativeTouches) {
+    if (event.type == NSEventTypeRightMouseDown) {
+      [self willShowMenuWithEvent:event];
+      break;
+    }
   }
 }
   
