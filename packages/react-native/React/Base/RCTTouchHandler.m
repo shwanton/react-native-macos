@@ -40,6 +40,10 @@
   NSMutableArray<NSMutableDictionary *> *_reactTouches;
   NSMutableArray<RCTPlatformView *> *_touchViews; // [macOS]
 
+#if TARGET_OS_OSX // TODO(macOS ISS#2323203)
+  NSEvent* _lastRightMouseDown;
+#endif  
+
   __weak RCTPlatformView *_cachedRootView;  // [macOS]
 
   uint16_t _coalescingKey;
@@ -106,6 +110,23 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)coder)
 #endif // macOS]
 
     RCTAssert(![_nativeTouches containsObject:touch], @"Touch is already recorded. This is a critical bug.");
+#if TARGET_OS_OSX // TODO(macOS ISS#2323203)
+    // We're starting a new interaction while there is an unterminated RightMouseDown touch. This can
+    // happen for example after a right click on secure text fields when not the RightMouseUp nor
+    // willShowMenu event can be intercepted 
+    // (see https://github.com/microsoft/react-native-macos/issues/1209).
+    
+    // This means the state machine in Pressability.js on JS side is in a stuck state. Best we can do 
+    // to get it unstuck is to send touch cancellation.
+    if (_lastRightMouseDown != NULL && [_nativeTouches containsObject:_lastRightMouseDown]) {
+      [self cancelTouchWithEvent:_lastRightMouseDown];
+      _lastRightMouseDown = NULL;
+    }
+    // Keep track of any active RightMouseDown touches. We reset it to NULL if interaction ends correctly
+    if (touch.type == NSEventTypeRightMouseDown) {
+       _lastRightMouseDown = touch;
+    }
+#endif
 
     // Find closest React-managed touchable view
     
@@ -194,6 +215,11 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)coder)
     if (index == NSNotFound) {
       continue;
     }
+#if TARGET_OS_OSX
+    if (_lastRightMouseDown != NULL && _lastRightMouseDown.eventNumber == touch.eventNumber) {
+      _lastRightMouseDown = NULL;
+    }
+#endif    
 
     [_touchViews removeObjectAtIndex:index];
     [_nativeTouches removeObjectAtIndex:index];
