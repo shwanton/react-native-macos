@@ -7,7 +7,7 @@ index 3c23c6a84b4..183bffe7164 100644
  }
  
 +rootProject.ext {
-+    ndkVersion="21.4.7075529"
++    ndkVersion="23.1.7779620"
 +}
 +
  import com.facebook.react.tasks.internal.*
