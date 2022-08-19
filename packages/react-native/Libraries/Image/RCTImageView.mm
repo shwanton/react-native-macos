@@ -147,6 +147,9 @@ static NSDictionary *onLoadParamsForSource(RCTImageSource *source)
 #endif // macOS]
     _imageView = [RCTUIImageViewAnimated new];
     _imageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    #if TARGET_OS_OSX
+      [_imageView unregisterDraggedTypes];
+    #endif
     [self addSubview:_imageView];
 
 #if !TARGET_OS_OSX // [macOS]
