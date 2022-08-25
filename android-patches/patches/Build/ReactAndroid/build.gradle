@@ -17,7 +17,7 @@ index 3c23c6a84b4..183bffe7164 100644
  // and the build will use that.
  def boostPath = dependenciesPath ?: System.getenv("REACT_NATIVE_BOOST_PATH")
  
-+def V8Path = 'packages/ReactNative.V8Jsi.Android.0.66.0-stable-v2'
++def V8Path = 'packages/ReactNative.V8Jsi.Android.0.68-stable-v1'
 +
  // Setup build type for NDK, supported values: {debug, release}
  def nativeBuildType = System.getenv("NATIVE_BUILD_TYPE") ?: "release"
