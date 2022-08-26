@@ -17,7 +17,7 @@ namespace facebook::react {
 constexpr struct {
   int32_t Major = 0;
   int32_t Minor = 66;
-  int32_t Patch = 72;
+  int32_t Patch = 73;
   std::string_view Prerelease = "";
 } ReactNativeVersion;
 
