@@ -15,7 +15,6 @@ import * as PressabilityDebug from '../Pressability/PressabilityDebug';
 import usePressability from '../Pressability/usePressability';
 import flattenStyle from '../StyleSheet/flattenStyle';
 import processColor from '../StyleSheet/processColor';
-import Linking from '../Linking/Linking';
 import StyleSheet from '../StyleSheet/StyleSheet';
 import Platform from '../Utilities/Platform';
 import TextAncestor from './TextAncestor';
@@ -108,10 +107,6 @@ const Text: React.AbstractComponent<
             onLongPress,
             onPress(event: PressEvent) {
               onPress?.(event);
-              const isLeftClick = event.nativeEvent.button == 0;
-              if (href && !event.defaultPrevented && isLeftClick) {
-                Linking.openURL(href);
-              }
             },
             onPressIn(event: PressEvent) {
               // Updating isHighlighted causes unnecessary re-renders for platforms that don't use it
