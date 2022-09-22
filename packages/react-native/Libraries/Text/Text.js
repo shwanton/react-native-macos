@@ -58,7 +58,7 @@ const Text: React.AbstractComponent<
     onResponderTerminationRequest,
     onStartShouldSetResponder,
     pressRetentionOffset,
-    suppressHighlighting,
+    role,
     ...restProps
   } = props;
 
@@ -124,7 +124,6 @@ const Text: React.AbstractComponent<
               onPressIn?.(event);
             },
             onPressOut(event: PressEvent) {
-              setHighlighted(false);
               onPressOut?.(event);
             },
             onResponderTerminationRequest_DEPRECATED:
@@ -143,7 +142,6 @@ const Text: React.AbstractComponent<
       onPressOut,
       onResponderTerminationRequest,
       onStartShouldSetResponder,
-      suppressHighlighting,
     ],
   );
 
@@ -264,7 +262,6 @@ const Text: React.AbstractComponent<
       accessibilityLabel={ariaLabel ?? accessibilityLabel}
       accessibilityState={_accessibilityState}
       href={href}
-      isHighlighted={isHighlighted}
       isPressable={isPressable}
       nativeID={id ?? nativeID}
       numberOfLines={numberOfLines}
@@ -289,7 +286,6 @@ const Text: React.AbstractComponent<
         disabled={_disabled}
         ellipsizeMode={ellipsizeMode ?? 'tail'}
         href={href}
-        isHighlighted={isHighlighted}
         nativeID={id ?? nativeID}
         numberOfLines={numberOfLines}
         ref={forwardedRef}
