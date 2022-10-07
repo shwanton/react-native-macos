@@ -439,8 +439,8 @@ static void *TextFieldSelectionObservingContext = &TextFieldSelectionObservingCo
   if ((commandSelector == @selector(insertNewline:) || commandSelector == @selector(insertNewlineIgnoringFieldEditor:))) {
     if ([textInputDelegate textInputShouldSubmitOnReturn]) {
       [_backedTextInputView.window makeFirstResponder:nil];
-      commandHandled = YES;
     }
+    commandHandled = YES;
   // tab
   } else if (commandSelector == @selector(insertTab:) ) {
     [_backedTextInputView.window selectNextKeyView:nil];
