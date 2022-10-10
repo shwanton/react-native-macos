@@ -14,6 +14,16 @@
 
 static void *TextFieldSelectionObservingContext = &TextFieldSelectionObservingContext;
 
+@implementation RCTBackedTextFieldDelegateAdapterUtility
++ (BOOL)isShiftOrOptionKeyDown
+{
+    NSEvent* event = [NSApp currentEvent];
+    auto isShiftKeyDown = (event.modifierFlags & NSEventModifierFlagShift) == NSEventModifierFlagShift;
+    auto isOptionKeyDown = (event.modifierFlags & NSEventModifierFlagOption) == NSEventModifierFlagOption;
+    return isShiftKeyDown || isOptionKeyDown;
+}
+@end
+
 @interface RCTBackedTextFieldDelegateAdapter ()
 #if !TARGET_OS_OSX // [macOS]
 <UITextFieldDelegate>
@@ -191,16 +201,33 @@ static void *TextFieldSelectionObservingContext = &TextFieldSelectionObservingCo
   return [self textFieldShouldEndEditing:_backedTextInputView];
 }
 
+// This delegate method is almost idential to the NSTextView delegate in this same file.
+// We are not combining them due to the side effects of each implementation.
+// The commands they handle are the same and should continue to stay in sync.
 - (BOOL)control:(NSControl *)control textView:(NSTextView *)fieldEditor doCommandBySelector:(SEL)commandSelector
 {
   id<RCTBackedTextInputDelegate> textInputDelegate = [_backedTextInputView textInputDelegate];
   BOOL commandHandled = NO;
   // enter/return
   if (commandSelector == @selector(insertNewline:) || commandSelector == @selector(insertNewlineIgnoringFieldEditor:)) {
+  #if TARGET_OS_OSX // [macOS
+    if (![RCTBackedTextFieldDelegateAdapterUtility isShiftOrOptionKeyDown]) {
+  #endif // macOS]
     [self textFieldDidEndEditingOnExit];
     if ([textInputDelegate textInputShouldSubmitOnReturn]) {
       [[_backedTextInputView window] makeFirstResponder:nil];
     }
+    commandHandled = YES;
+  #if TARGET_OS_OSX // [macOS
+    }
+  #endif // macOS]
+    // tab
+  } else if (commandSelector == @selector(insertTab:) ) {
+    [_backedTextInputView.window selectNextKeyView:nil];
+    commandHandled = YES;
+    // shift-tab
+  } else if (commandSelector == @selector(insertBacktab:)) {
+    [_backedTextInputView.window selectPreviousKeyView:nil];
     commandHandled = YES;
     //backspace
   } else if (commandSelector == @selector(deleteBackward:)) {
@@ -211,7 +238,6 @@ static void *TextFieldSelectionObservingContext = &TextFieldSelectionObservingCo
     }
     //deleteForward
   } else if (commandSelector == @selector(deleteForward:)) {
-    id<RCTBackedTextInputDelegate> textInputDelegate = [_backedTextInputView textInputDelegate];
     if (textInputDelegate != nil && ![textInputDelegate textInputShouldHandleDeleteForward:_backedTextInputView]) {
       commandHandled = YES;
     } else {
@@ -219,7 +245,6 @@ static void *TextFieldSelectionObservingContext = &TextFieldSelectionObservingCo
     }
     //paste
   } else if (commandSelector == @selector(paste:)) {
-    id<RCTBackedTextInputDelegate> textInputDelegate = [_backedTextInputView textInputDelegate];
     if (textInputDelegate != nil && ![textInputDelegate textInputShouldHandlePaste:_backedTextInputView]) {
       commandHandled = YES;
     } else {
@@ -431,17 +456,26 @@ static void *TextFieldSelectionObservingContext = &TextFieldSelectionObservingCo
   [self textViewDidEndEditing:_backedTextInputView];
 }
 
+// This delegate method is almost idential to the NSTextField delegate in this same file.
+// We are not combining them due to the side effects of each implementation.
+// The commands they handle are the same and should continue to stay in sync.
 - (BOOL)textView:(NSTextView *)textView doCommandBySelector:(SEL)commandSelector
 {
   BOOL commandHandled = NO;
   id<RCTBackedTextInputDelegate> textInputDelegate = [_backedTextInputView textInputDelegate];
   // enter/return
   if ((commandSelector == @selector(insertNewline:) || commandSelector == @selector(insertNewlineIgnoringFieldEditor:))) {
+  #if TARGET_OS_OSX // [macOS
+    if (![RCTBackedTextFieldDelegateAdapterUtility isShiftOrOptionKeyDown]) {
+  #endif // macOS]
     if ([textInputDelegate textInputShouldSubmitOnReturn]) {
       [_backedTextInputView.window makeFirstResponder:nil];
     }
     commandHandled = YES;
-  // tab
+  #if TARGET_OS_OSX // [macOS
+    }
+  #endif // macOS]
+    // tab
   } else if (commandSelector == @selector(insertTab:) ) {
     [_backedTextInputView.window selectNextKeyView:nil];
     commandHandled = YES;
@@ -451,10 +485,21 @@ static void *TextFieldSelectionObservingContext = &TextFieldSelectionObservingCo
     commandHandled = YES;
     //backspace
   } else if (commandSelector == @selector(deleteBackward:)) {
-    commandHandled = textInputDelegate != nil && ![textInputDelegate textInputShouldHandleDeleteBackward:_backedTextInputView];
+    if (textInputDelegate != nil && ![textInputDelegate textInputShouldHandleDeleteBackward:_backedTextInputView]) {
+      commandHandled = YES;
+    }
     //deleteForward
   } else if (commandSelector == @selector(deleteForward:)) {
-    commandHandled = textInputDelegate != nil && ![textInputDelegate textInputShouldHandleDeleteForward:_backedTextInputView];
+    if (textInputDelegate != nil && ![textInputDelegate textInputShouldHandleDeleteForward:_backedTextInputView]) {
+      commandHandled = YES;
+    }
+    //paste
+  } else if (commandSelector == @selector(paste:)) {
+    if (textInputDelegate != nil && ![textInputDelegate textInputShouldHandlePaste:_backedTextInputView]) {
+      commandHandled = YES;
+    } else {
+      _backedTextInputView.textWasPasted = YES;
+    }
     //escape
   } else if (commandSelector == @selector(cancelOperation:)) {
     [textInputDelegate textInputDidCancel];
