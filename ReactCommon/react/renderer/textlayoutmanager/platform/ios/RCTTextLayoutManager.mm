@@ -13,11 +13,13 @@
 #import <React/RCTUtils.h>
 #import <react/utils/ManagedObjectWrapper.h>
 #import <react/utils/SimpleThreadSafeCache.h>
+#import <react/renderer/textlayoutmanager/RCTAttributedTextUtils.h>
 
 using namespace facebook::react;
 
 @implementation RCTTextLayoutManager {
   SimpleThreadSafeCache<AttributedString, std::shared_ptr<void>, 256> _cache;
+  CAShapeLayer *_highlightLayer;
 }
 
 static NSLineBreakMode RCTNSLineBreakModeFromEllipsizeMode(EllipsizeMode ellipsizeMode)
@@ -119,6 +121,48 @@ static NSLineBreakMode RCTNSLineBreakModeFromEllipsizeMode(EllipsizeMode ellipsi
   NSRange glyphRange = [layoutManager glyphRangeForTextContainer:textContainer];
   [layoutManager drawBackgroundForGlyphRange:glyphRange atPoint:frame.origin];
   [layoutManager drawGlyphsForGlyphRange:glyphRange atPoint:frame.origin];
+  
+  __block UIBezierPath *highlightPath = nil;
+  NSRange characterRange = [layoutManager characterRangeForGlyphRange:glyphRange
+                                                     actualGlyphRange:NULL];
+
+  [textStorage enumerateAttribute:RCTAttributedStringIsHighlightedAttributeName
+                           inRange:characterRange
+                           options:0
+                        usingBlock:
+    ^(NSNumber *value, NSRange range, __unused BOOL *stop) {
+      if (!value.boolValue) {
+        return;
+      }
+
+      [layoutManager enumerateEnclosingRectsForGlyphRange:range
+                                 withinSelectedGlyphRange:range
+                                          inTextContainer:textContainer
+                                               usingBlock:
+        ^(CGRect enclosingRect, __unused BOOL *anotherStop) {
+          UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(enclosingRect, -2, -2) cornerRadius:2];
+          if (highlightPath) {
+            [highlightPath appendPath:path];
+          } else {
+            highlightPath = path;
+          }
+        }
+      ];
+  }];
+
+  if (highlightPath) {
+    if (!_highlightLayer) {
+      _highlightLayer = [CAShapeLayer layer];
+      _highlightLayer.fillColor = [UIColor colorWithWhite:0 alpha:0.25].CGColor;
+
+//      [self.layer addSublayer:_highlightLayer];
+    }
+    _highlightLayer.position = frame.origin;
+    _highlightLayer.path = highlightPath.CGPath;
+  } else {
+    [_highlightLayer removeFromSuperlayer];
+    _highlightLayer = nil;
+  }
 
 #if TARGET_OS_MACCATALYST
   CGContextRestoreGState(context);
