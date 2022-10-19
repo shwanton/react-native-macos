@@ -223,12 +223,16 @@ static void *TextFieldSelectionObservingContext = &TextFieldSelectionObservingCo
   #endif // macOS]
     // tab
   } else if (commandSelector == @selector(insertTab:) ) {
-    [_backedTextInputView.window selectNextKeyView:nil];
-    commandHandled = YES;
+    // noop
+    // NSTextField does not use tab character.
+    // insertTab should select next view in key view loop which is default behavior
+
     // shift-tab
   } else if (commandSelector == @selector(insertBacktab:)) {
-    [_backedTextInputView.window selectPreviousKeyView:nil];
-    commandHandled = YES;
+    // noop
+    // NSTextField does not use tab character.
+    // insertBacktab should select previous view in key view loop which is default behavior
+    
     //backspace
   } else if (commandSelector == @selector(deleteBackward:)) {
     if (textInputDelegate != nil && ![textInputDelegate textInputShouldHandleDeleteBackward:_backedTextInputView]) {
