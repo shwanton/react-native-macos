@@ -576,12 +576,44 @@ static BOOL RCTAnyTouchesChanged(NSSet *touches) // [TODO(macOS GH#774)
 }
 
 #if TARGET_OS_OSX // [TODO(macOS GH#774)
-- (void)willShowMenuWithEvent:(NSEvent*)event
+  
++ (instancetype)touchHandlerForEvent:(NSEvent *)event {
+  // // The window's frame view must be used for hit testing against `locationInWindow`
+  NSView *hitView = [event.window.contentView.superview hitTest:event.locationInWindow];
+  return [self touchHandlerForView:hitView];
+}
+
++ (instancetype)touchHandlerForView:(NSView *)view {
+  if ([view isKindOfClass:[RCTRootView class]]) {
+    // The RCTTouchHandler is attached to the contentView.
+    view = ((RCTRootView *)view).contentView;
+  }
+
+  while (view) {
+    for (NSGestureRecognizer *gestureRecognizer in view.gestureRecognizers) {
+      if ([gestureRecognizer isKindOfClass:[self class]]) {
+        return (RCTTouchHandler *)gestureRecognizer;
+      }
+    }
+
+    view = view.superview;
+  }
+
+  return nil;
+}
+
+  - (void)willShowMenuWithEvent:(NSEvent*)event
 {
   if (event.type == NSEventTypeRightMouseDown) {
     [self interactionsEnded:[NSSet setWithObject:event] withEvent:event];
   }
 }
+  
+- (void)cancelTouchWithEvent:(NSEvent*)event
+{
+  [self interactionsCancelled:[NSSet setWithObject:event] withEvent:event];
+}
+
 #endif // ]TODO(macOS GH#774)
 
 #pragma mark - UIGestureRecognizerDelegate

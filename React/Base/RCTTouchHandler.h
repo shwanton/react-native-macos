@@ -19,8 +19,13 @@
 - (void)detachFromView:(RCTUIView *)view; // TODO(macOS ISS#3536887)
 
 - (void)cancel;
+
 #if TARGET_OS_OSX // [TODO(macOS GH#774)
-- (void)willShowMenuWithEvent:(NSEvent*)event;
++ (instancetype)touchHandlerForEvent:(NSEvent *)event;
++ (instancetype)touchHandlerForView:(NSView *)view;
+
+- (void)willShowMenuWithEvent:(NSEvent *)event;
+- (void)cancelTouchWithEvent:(NSEvent *)event;
 #endif // ]TODO(macOS GH#774)
 
 @end

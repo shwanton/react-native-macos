@@ -17,6 +17,8 @@
 #import <React/RCTFocusChangeEvent.h> // TODO(OSS Candidate ISS#2710739)
 
 #import <React/RCTTextShadowView.h>
+#import <React/RCTTouchHandler.h>
+#import <React/RCTRootContentView.h>
 
 #import <QuartzCore/QuartzCore.h>
 
@@ -407,6 +409,18 @@
 }
 #else // [TODO(macOS GH#774)
 
+- (NSView *)hitTest:(NSPoint)point
+{
+  // We will forward mouse click events to the NSTextView ourselves to prevent NSTextView from swallowing events that may be handled in JS (e.g. long press).
+  NSView *hitView = [super hitTest:point];
+  NSEventType eventType = NSApp.currentEvent.type;
+  BOOL isMouseClickEvent = NSEvent.pressedMouseButtons > 0;
+  BOOL isMouseMoveEventType = eventType == NSEventTypeMouseMoved || eventType == NSEventTypeMouseEntered || eventType == NSEventTypeMouseExited || eventType == NSEventTypeCursorUpdate;
+  BOOL isMouseMoveEvent = !isMouseClickEvent && isMouseMoveEventType;
+  BOOL isTextViewClick = hitView && hitView == _textView && !isMouseMoveEvent;
+  return isTextViewClick ? self : hitView;
+}
+
 - (void)rightMouseDown:(NSEvent *)event
 {
   if (_selectable == NO) {
@@ -439,6 +453,43 @@
     }
   }
 }
+
+- (void)mouseDown:(NSEvent *)event
+{
+  if (!self.selectable) {
+    [super mouseDown:event];
+    return;
+  }
+
+  // Double/triple-clicks should be forwarded to the NSTextView.
+  BOOL shouldForward = event.clickCount > 1;
+
+  if (!shouldForward) {
+    // Peek at next event to know if a selection should begin.
+    NSEvent *nextEvent = [self.window nextEventMatchingMask:NSLeftMouseUpMask | NSLeftMouseDraggedMask
+                                                  untilDate:[NSDate distantFuture]
+                                                     inMode:NSEventTrackingRunLoopMode
+                                                    dequeue:NO];
+    shouldForward = nextEvent.type == NSLeftMouseDragged;
+  }
+
+  if (shouldForward) {
+    NSView *contentView = self.window.contentView;
+    // -[NSView hitTest:] takes coordinates in a view's superview coordinate system.
+    NSPoint point = [contentView.superview convertPoint:event.locationInWindow fromView:nil];
+
+    // Start selection if we're still selectable and hit-testable.
+    if (self.selectable && [contentView hitTest:point] == self) {
+      [[RCTTouchHandler touchHandlerForView:self] cancelTouchWithEvent:event];
+      [self.window makeFirstResponder:_textView];
+      [_textView mouseDown:event];
+    }
+  } else {
+    // Clear selection for single clicks.
+    _textView.selectedRange = NSMakeRange(NSNotFound, 0);
+  }
+}
+
 #endif // ]TODO(macOS GH#774)
 
 #pragma mark - Selection
