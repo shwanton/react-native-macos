@@ -18,7 +18,6 @@
 
 #import <React/RCTTextShadowView.h>
 #import <React/RCTTouchHandler.h>
-#import <React/RCTRootContentView.h>
 
 #import <QuartzCore/QuartzCore.h>
 
@@ -413,45 +412,26 @@
 {
   // We will forward mouse click events to the NSTextView ourselves to prevent NSTextView from swallowing events that may be handled in JS (e.g. long press).
   NSView *hitView = [super hitTest:point];
+  
   NSEventType eventType = NSApp.currentEvent.type;
   BOOL isMouseClickEvent = NSEvent.pressedMouseButtons > 0;
   BOOL isMouseMoveEventType = eventType == NSEventTypeMouseMoved || eventType == NSEventTypeMouseEntered || eventType == NSEventTypeMouseExited || eventType == NSEventTypeCursorUpdate;
   BOOL isMouseMoveEvent = !isMouseClickEvent && isMouseMoveEventType;
-  BOOL isTextViewClick = hitView && hitView == _textView && !isMouseMoveEvent;
+  BOOL isTextViewClick = (hitView && hitView == _textView) && !isMouseMoveEvent;
+  
   return isTextViewClick ? self : hitView;
 }
 
 - (void)rightMouseDown:(NSEvent *)event
 {
-  if (_selectable == NO) {
+
+  if (self.selectable == NO) {
     [super rightMouseDown:event];
     return;
   }
-  NSText *fieldEditor = [self.window fieldEditor:YES forObject:self];
-  NSMenu *fieldEditorMenu = [fieldEditor menuForEvent:event];
 
-  RCTAssert(fieldEditorMenu, @"Unable to obtain fieldEditor's context menu");
-
-  if (fieldEditorMenu) {
-    NSMenu *menu = [[NSMenu alloc] initWithTitle:@""];
-
-    for (NSMenuItem *fieldEditorMenuItem in fieldEditorMenu.itemArray) {
-      if (fieldEditorMenuItem.action == @selector(copy:)) {
-        NSMenuItem *item = [fieldEditorMenuItem copy];
-
-        item.target = self;
-        [menu addItem:item];
-
-        break;
-      }
-    }
-
-    RCTAssert(menu.numberOfItems > 0, @"Unable to create context menu with \"Copy\" item");
-
-    if (menu.numberOfItems > 0) {
-      [NSMenu popUpContextMenu:menu withEvent:event forView:self];
-    }
-  }
+  [[RCTTouchHandler touchHandlerForView:self] cancelTouchWithEvent:event];
+  [_textView rightMouseDown:event];
 }
 
 - (void)mouseDown:(NSEvent *)event

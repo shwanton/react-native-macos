@@ -12,7 +12,7 @@
 #import <React/RCTBackedTextInputDelegateAdapter.h>
 #import <React/RCTBackedTextInputDelegate.h> // TODO(OSS Candidate ISS#2710739)
 #import <React/RCTTextAttributes.h>
-
+#import <React/RCTTouchHandler.h>
 
 #if TARGET_OS_OSX // [TODO(macOS GH#774)
 
@@ -430,7 +430,7 @@
   
 #else // [TODO(macOS GH#774)
   
-#pragma mark - NSTextViewDelegate methods
+#pragma mark - NSTextFieldDelegate methods
 
 - (void)textDidChange:(NSNotification *)notification
 {
@@ -467,6 +467,15 @@
   return NO;
 }
   
+- (NSMenu *)textView:(NSTextView *)view menu:(NSMenu *)menu forEvent:(NSEvent *)event atIndex:(NSUInteger)charIndex
+{
+  if (menu) {
+    [[RCTTouchHandler touchHandlerForView:self] willShowMenuWithEvent:event];
+  }
+
+  return menu;
+}
+
 #endif // ]TODO(macOS GH#774)
 
 #pragma mark - Overrides

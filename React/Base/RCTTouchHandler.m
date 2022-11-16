@@ -602,14 +602,14 @@ static BOOL RCTAnyTouchesChanged(NSSet *touches) // [TODO(macOS GH#774)
   return nil;
 }
 
-  - (void)willShowMenuWithEvent:(NSEvent*)event
+- (void)willShowMenuWithEvent:(NSEvent *)event
 {
   if (event.type == NSEventTypeRightMouseDown) {
     [self interactionsEnded:[NSSet setWithObject:event] withEvent:event];
   }
 }
   
-- (void)cancelTouchWithEvent:(NSEvent*)event
+- (void)cancelTouchWithEvent:(NSEvent *)event
 {
   [self interactionsCancelled:[NSSet setWithObject:event] withEvent:event];
 }
