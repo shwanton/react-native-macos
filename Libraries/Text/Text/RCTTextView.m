@@ -564,8 +564,6 @@
   UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
   pasteboard.items = @[item];
 #elif TARGET_OS_OSX
-  [_textView copy:sender];
-
   NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
   [pasteboard clearContents];
   [pasteboard setData:rtf forType:NSPasteboardTypeRTFD];
