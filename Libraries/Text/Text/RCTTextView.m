@@ -469,6 +469,19 @@
   }
 }
 
+- (NSMenu *)textView:(NSTextView *)view menu:(NSMenu *)menu forEvent:(NSEvent *)event atIndex:(NSUInteger)charIndex
+{
+  if (self.additionalMenuItems.count > 0) {
+    [menu insertItem:[NSMenuItem separatorItem] atIndex:0];
+    
+    for (NSMenuItem* item in [_additionalMenuItems reverseObjectEnumerator]) {
+      [menu insertItem:item atIndex:0];
+    }
+  }
+  
+  return menu;
+}
+
 #endif // ]TODO(macOS GH#774)
 
 #pragma mark - Selection
