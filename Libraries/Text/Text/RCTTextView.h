@@ -9,6 +9,7 @@
 #import <React/RCTEventDispatcher.h> // TODO(OSS Candidate ISS#2710739)
 
 #import <React/RCTUIKit.h> // TODO(macOS GH#774)
+#import <React/RCTUtils.h> // TODO(macOS GH#774)
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -20,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if TARGET_OS_OSX // [TODO(macOS GH#774)
 @property (nonatomic, strong) NSArray<NSMenuItem *> *additionalMenuItems;
+@property (nonatomic, strong) RCTMenuItemFilterPredicate menuItemFilterPredicate;
 #endif // ]TODO(macOS GH#774)
 
 - (void)setTextStorage:(NSTextStorage *)textStorage

@@ -471,6 +471,10 @@
 
 - (NSMenu *)textView:(NSTextView *)view menu:(NSMenu *)menu forEvent:(NSEvent *)event atIndex:(NSUInteger)charIndex
 {
+  if (_menuItemFilterPredicate != nil) {
+    RCTHideMenuItemsWithFilterPredicate(menu, self.menuItemFilterPredicate);
+  }
+    
   if (self.additionalMenuItems.count > 0) {
     [menu insertItem:[NSMenuItem separatorItem] atIndex:0];
     
