@@ -209,7 +209,6 @@
     return;
   }
 
-
   NSLayoutManager *layoutManager = _textStorage.layoutManagers.firstObject;
   NSTextContainer *textContainer = layoutManager.textContainers.firstObject;
 
@@ -446,11 +445,11 @@
 
   if (!shouldForward) {
     // Peek at next event to know if a selection should begin.
-    NSEvent *nextEvent = [self.window nextEventMatchingMask:NSLeftMouseUpMask | NSLeftMouseDraggedMask
+    NSEvent *nextEvent = [self.window nextEventMatchingMask:NSEventMaskLeftMouseUp | NSEventMaskLeftMouseDragged
                                                   untilDate:[NSDate distantFuture]
                                                      inMode:NSEventTrackingRunLoopMode
                                                     dequeue:NO];
-    shouldForward = nextEvent.type == NSLeftMouseDragged;
+    shouldForward = nextEvent.type == NSEventTypeLeftMouseDragged;
   }
 
   if (shouldForward) {
