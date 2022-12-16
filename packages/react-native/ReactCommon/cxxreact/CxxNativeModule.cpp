@@ -18,10 +18,10 @@
 
 #include <logger/react_native_log.h>
 
-// ARCHON_RNW_CRASHPAD: Get dumps for the original exception stacks for CxxModule method calls.
-#if _WIN32
+// Get dumps for the original exception stacks for CxxModule method calls.
+#if defined _WIN32 && defined USE_CRASH_PAD
 #include <CrashpadExceptionHandler/ExceptionHandlerUtils.hpp>
-#endif // _WIN32
+#endif // _WIN32 && USE_CRASH_PAD
 
 using facebook::xplat::module::CxxModule;
 namespace facebook::react {
@@ -208,13 +208,13 @@ void CxxNativeModule::invoke(
     SystraceSection s(
         "CxxMethodCallDispatch", "module", moduleName, "method", method.name);
     try {
-#ifdef _WIN32
+#if defined _WIN32 && defined USE_CRASH_PAD
       crashpad::exception_handler::dumpAndCrashIfThrows([&]() {
-#endif // _WIN32
+#endif // _WIN32 && USE_CRASH_PAD
       method.func(std::move(params), first, second);
-#ifdef _WIN32
+#if defined _WIN32 && defined USE_CRASH_PAD
       });
-#endif // _WIN32
+#endif // _WIN32 && USE_CRASH_PAD
     } catch (const facebook::xplat::JsArgumentException& ex) {
       throw;
     } catch (std::exception& e) {
