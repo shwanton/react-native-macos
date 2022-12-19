@@ -39,6 +39,13 @@ import type {Node} from 'react';
 export type ViewLayout = Layout;
 export type ViewLayoutEvent = LayoutEvent;
 
+type BubblingEventProps = $ReadOnly<{|
+  onBlur?: ?(event: BlurEvent) => mixed,
+  onFocus?: ?(event: FocusEvent) => mixed,
+  onKeyDown?: ?(event: KeyEvent) => mixed, // [macOS]
+  onKeyUp?: ?(event: KeyEvent) => mixed, // [macOS]
+|}>;
+
 type DirectEventProps = $ReadOnly<{|
   /**
    * When `accessible` is true, the system will try to invoke this function
@@ -56,6 +63,12 @@ type DirectEventProps = $ReadOnly<{|
   onAccessibilityTap?: ?() => mixed,
 
   // [macOS
+  /**
+   * When `accessible` is true, the system will try to invoke this function
+   * when the user performs accessibility double click gesture.
+   */
+  onDoubleClick?: ?(event: SyntheticEvent<{}>) => mixed,
+
   /**
    * This event is fired when the scrollView's inverted property changes.
    * @platform macos
@@ -570,6 +583,13 @@ type MacOSViewProps = $ReadOnly<{|
   allowsVibrancy?: ?boolean,
 
   /**
+   * The react tag of the view that follows the current view in the key view loop.
+   *
+   * @platform macos
+   */
+  nextKeyViewTag?: ?number,
+
+  /**
    * Specifies whether system focus ring should be drawn when the view has keyboard focus.
    *
    * @platform macos
@@ -577,6 +597,21 @@ type MacOSViewProps = $ReadOnly<{|
   enableFocusRing?: ?boolean,
 
   /**
+   * Array of keys to receive key down events for
+   *
+   * @platform macos
+   */
+  validKeysDown?: ?Array<string>,
+
+  /**
+   * Array of keys to receive key up events for
+   *
+   * @platform macos
+   */
+  validKeysUp?: ?Array<string>,
+
+  /**
+   * Enables Drag'n'Drop Support for certain types of dragged types
    * The types of dragged files that the view will accept.
    *
    * Possible values for `draggedTypes` are:
@@ -593,6 +628,11 @@ type MacOSViewProps = $ReadOnly<{|
    * @platform macos
    */
   inverted?: ?boolean,
+
+  /*
+   * Sets the type of mouse cursor, to show when the mouse pointer is over the view.
+   */
+  cursor?: ?CursorValue,
 |}>;
 // macOS]
 
