@@ -44,6 +44,8 @@ using namespace facebook::react;
     self.contentView = _imageView;
 #else // [macOS
     self.contentView = [RCTUIView new];
+    _imageView.frame = self.contentView.bounds;
+    _imageView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
     [self.contentView addSubview:_imageView];
 #endif // macOS]
   }
