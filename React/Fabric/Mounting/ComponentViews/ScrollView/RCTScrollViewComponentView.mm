@@ -130,8 +130,13 @@ static void RCTSendScrollEventForNativeAnimations_DEPRECATED(RCTUIScrollView *sc
     _shouldUpdateContentInsetAdjustmentBehavior = YES;
     [self addSubview:_scrollView];
 
-    _containerView = [[RCTUIView alloc] initWithFrame:CGRectZero]; // [macOS]
+    _containerView = [[RCTUIView alloc] initWithFrame:CGRectZero];
+#if !TARGET_OS_OSX // [macOS]
     [_scrollView addSubview:_containerView];
+#else // [macOS
+    _containerView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight; // [macOS]
+    [_scrollView setDocumentView:_containerView];
+#endif // macOS]
 #if !TARGET_OS_OSX // [macOS]
     [self.scrollViewDelegateSplitter addDelegate:self];
 #endif // [macOS]
