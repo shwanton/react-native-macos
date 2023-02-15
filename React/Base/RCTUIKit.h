@@ -369,7 +369,7 @@ CGPathRef UIBezierPathCreateCGPathRef(UIBezierPath *path);
 
 #define RCTPlatformWindow NSWindow
 
-@interface RCTUIView : NSView
+@interface RCTUIView : RCTPlatformView
 
 @property (nonatomic, readonly) BOOL canBecomeFirstResponder;
 - (BOOL)becomeFirstResponder;
@@ -492,8 +492,11 @@ NS_ASSUME_NONNULL_END
 #if !TARGET_OS_OSX
 typedef UISlider RCTUISlider;
 #else
+@protocol RCTUISliderDelegate;
+
 @interface RCTUISlider : NSSlider
 NS_ASSUME_NONNULL_BEGIN
+@property (nonatomic, weak) id<RCTUISliderDelegate> delegate;
 @property (nonatomic, readonly) BOOL pressed;
 @property (nonatomic, assign) float value;
 @property (nonatomic, assign) float minimumValue;
@@ -505,6 +508,13 @@ NS_ASSUME_NONNULL_BEGIN
 NS_ASSUME_NONNULL_END
 @end
 #endif
+
+#if TARGET_OS_OSX // [macOS
+@protocol RCTUISliderDelegate <NSObject>
+@optional
+- (void)slider:(RCTUISlider *)slider didPress:(BOOL)press;
+@end
+#endif // macOS]
 
 // RCTUILabel
 
