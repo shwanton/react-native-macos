@@ -549,11 +549,13 @@ using namespace facebook::react;
   metrics.selectionRange = [self _selectionRange];
   metrics.eventCount = _mostRecentEventCount;
 
-  CGPoint contentOffset = _backedTextInputView.contentOffset;
-  metrics.contentOffset = {contentOffset.x, contentOffset.y};
-
-  UIEdgeInsets contentInset = _backedTextInputView.contentInset;
-  metrics.contentInset = {contentInset.left, contentInset.top, contentInset.right, contentInset.bottom};
+#if !TARGET_OS_OSX // [macOS]
+//  CGPoint contentOffset = _backedTextInputView.contentOffset;
+//  metrics.contentOffset = {contentOffset.x, contentOffset.y};
+//
+//  UIEdgeInsets contentInset = _backedTextInputView.contentInset;
+//  metrics.contentInset = {contentInset.left, contentInset.top, contentInset.right, contentInset.bottom};
+#endif // [macOS]
 
   CGSize contentSize = _backedTextInputView.contentSize;
   metrics.contentSize = {contentSize.width, contentSize.height};
@@ -561,8 +563,10 @@ using namespace facebook::react;
   CGSize layoutMeasurement = _backedTextInputView.bounds.size;
   metrics.layoutMeasurement = {layoutMeasurement.width, layoutMeasurement.height};
 
-  CGFloat zoomScale = _backedTextInputView.zoomScale;
-  metrics.zoomScale = zoomScale;
+#if !TARGET_OS_OSX // [macOS]
+//  CGFloat zoomScale = _backedTextInputView.zoomScale;
+//  metrics.zoomScale = zoomScale;
+#endif // [macOS]
 
   return metrics;
 }
