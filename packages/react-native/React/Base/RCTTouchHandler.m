@@ -42,7 +42,8 @@
 
 #if TARGET_OS_OSX // TODO(macOS ISS#2323203)
   NSEvent* _lastRightMouseDown;
-#endif  
+  NSEvent* _lastEvent;
+#endif
 
   __weak RCTPlatformView *_cachedRootView;  // [macOS]
 
@@ -495,6 +496,16 @@ static BOOL RCTAnyTouchesChanged(NSSet *touches) // [macOS]
 }
 #else // [macOS
 
+- (BOOL)isDuplicateEvent:(NSEvent *)event
+{
+  if (_lastEvent && (event == _lastEvent || (event.eventNumber == _lastEvent.eventNumber && event.type == _lastEvent.type))) {
+    return YES;
+  }
+
+  _lastEvent = event;
+  return NO;
+}
+
 - (BOOL)acceptsFirstMouse:(NSEvent *)event
 {
   // This will only be called if the hit-tested view returns YES for acceptsFirstMouse,
@@ -504,36 +515,60 @@ static BOOL RCTAnyTouchesChanged(NSSet *touches) // [macOS]
 
 - (void)mouseDown:(NSEvent *)event
 {
+  if ([self isDuplicateEvent:event]) {
+    return;
+  }
+
   [super mouseDown:event];
   [self interactionsBegan:[NSSet setWithObject:event]];
 }
   
 - (void)rightMouseDown:(NSEvent *)event
 {
+  if ([self isDuplicateEvent:event]) {
+    return;
+  }
+
   [super rightMouseDown:event];
   [self interactionsBegan:[NSSet setWithObject:event]];
 }
   
 - (void)mouseDragged:(NSEvent *)event
 {
+  if ([self isDuplicateEvent:event]) {
+    return;
+  }
+
   [super mouseDragged:event];
   [self interactionsMoved:[NSSet setWithObject:event]];
 }
   
 - (void)rightMouseDragged:(NSEvent *)event
 {
+  if ([self isDuplicateEvent:event]) {
+    return;
+  }
+
   [super rightMouseDragged:event];
   [self interactionsMoved:[NSSet setWithObject:event]];
 }
 
 - (void)mouseUp:(NSEvent *)event
 {
+  if ([self isDuplicateEvent:event]) {
+    return;
+  }
+
   [super mouseUp:event];
   [self interactionsEnded:[NSSet setWithObject:event] withEvent:event];
 }
   
 - (void)rightMouseUp:(NSEvent *)event
 {
+  if ([self isDuplicateEvent:event]) {
+    return;
+  }
+
   [super rightMouseUp:event];
   [self interactionsEnded:[NSSet setWithObject:event] withEvent:event];
 }
