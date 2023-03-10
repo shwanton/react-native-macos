@@ -557,7 +557,7 @@ static BOOL RCTAnyTouchesChanged(NSSet *touches) // [macOS]
 
 - (BOOL)isDuplicateEvent:(NSEvent *)event
 {
-  if (_lastEvent && (event == _lastEvent || (event.eventNumber == _lastEvent.eventNumber && event.type == _lastEvent.type))) {
+  if (_lastEvent && (event == _lastEvent || (event.eventNumber == _lastEvent.eventNumber && event.type == _lastEvent.type && NSEqualPoints(event.locationInWindow, _lastEvent.locationInWindow  )))) {
     return YES;
   }
 
