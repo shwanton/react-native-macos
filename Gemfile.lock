@@ -8,7 +8,7 @@ GEM
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
       tzinfo (~> 2.0)
-    addressable (2.8.2)
+    addressable (2.8.3)
       public_suffix (>= 2.0.2, < 6.0)
     algoliasearch (1.27.5)
       httpclient (~> 2.8, >= 2.8.3)
@@ -93,7 +93,7 @@ DEPENDENCIES
   cocoapods (~> 1.12)
 
 RUBY VERSION
-   ruby 2.7.6p219
+   ruby 3.1.3p185
 
 BUNDLED WITH
-   2.1.4
+   2.3.26
