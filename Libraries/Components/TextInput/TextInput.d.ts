@@ -274,7 +274,7 @@ export interface TextInputIOSProps {
   scrollEnabled?: boolean | undefined;
 }
 
-// [MacOS
+// [macOS
 export type SettingChangeEvent = NativeSyntheticEvent<{
   enabled: boolean;
 }>;
@@ -309,7 +309,7 @@ export type PasteType = 'fileUrl' | 'image' | 'string';
 export type PastedTypesType = PasteType | PasteType[];
 
 /**
- * MacOS Specific properties for TextInput
+ * macOS Specific properties for TextInput
  */
 export interface TextInputMacOSProps {
   /**
@@ -379,7 +379,7 @@ export interface TextInputMacOSProps {
   tooltip?: string | undefined;
 }
 
-// MacOS]
+// macOS]
 
 /**
  * Android Specific properties for TextInput
