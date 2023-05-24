@@ -37,6 +37,16 @@
   return NO;
 }
 
+- (BOOL)resignFirstResponder
+{
+  // Don't relinquish first responder while selecting text.
+  if (self.selectable && NSRunLoop.currentRunLoop.currentMode == NSEventTrackingRunLoopMode) {
+    return NO;
+  }
+  
+  return [super resignFirstResponder];
+}
+
 @end
 
 #endif // macOS]
@@ -537,16 +547,6 @@
   [_eventDispatcher sendEvent:[RCTFocusChangeEvent focusEventWithReactTag:self.reactTag]];
 
   return YES;
-}
-
-- (BOOL)resignFirstResponder
-{
-  //  Don't relinquish first responder while selecting text.
-  if (_selectable && NSRunLoop.currentRunLoop.currentMode == NSEventTrackingRunLoopMode) {
-    return NO;
-  }
-  
-  return [super resignFirstResponder];
 }
 
 - (BOOL)canBecomeFirstResponder
