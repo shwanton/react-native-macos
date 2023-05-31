@@ -231,10 +231,10 @@
 #endif // macOS]
   if (contentView && _centerContent && !CGSizeEqualToSize(contentView.frame.size, CGSizeZero)) {
     CGSize subviewSize = contentView.frame.size;
-#if TARGET_OS_OSX // [macOS
-    CGSize scrollViewSize = self.contentView.bounds.size;
-#else // [macOS
+#if !TARGET_OS_OSX // [macOS]
     CGSize scrollViewSize = self.bounds.size;
+#else // [macOS
+    CGSize scrollViewSize = self.contentView.bounds.size;
 #endif // macOS]
     if (subviewSize.width <= scrollViewSize.width) {
       contentOffset.x = -(scrollViewSize.width - subviewSize.width) / 2.0;
@@ -381,6 +381,7 @@
   BOOL _allowNextScrollNoMatterWhat;
 #if TARGET_OS_OSX // [macOS
   BOOL _notifyDidScroll;
+  NSPoint _lastDocumentOrigin;
 #endif // macOS]
   CGRect _lastClippedToRect;
   uint16_t _coalescingKey;
@@ -475,6 +476,7 @@ static inline UIViewAnimationOptions animationOptionsWithCurve(UIViewAnimationCu
     _scrollView.delaysContentTouches = NO;
 #else // [macOS
     _scrollView.postsBoundsChangedNotifications = YES;
+    _lastDocumentOrigin = NSZeroPoint;
 #endif // macOS]
 
 #if !TARGET_OS_OSX // [macOS]
@@ -874,8 +876,9 @@ static inline void RCTApplyTransformationAccordingLayoutDirection(
     _scrollView.contentOffset = _scrollView.contentOffset; // necessary for content centering when _centerContent == YES
   }
 
-  // if scrollView is not ready, don't notify with scroll event
-  if (_notifyDidScroll) {
+  // only send didScroll event if scrollView is ready or document origin changed
+  BOOL didScroll = !NSEqualPoints(_scrollView.documentView.frame.origin, _lastDocumentOrigin);
+  if (_notifyDidScroll && didScroll) {
     [self scrollViewDidScroll:_scrollView];
   }
 }
@@ -921,6 +924,9 @@ RCT_SCROLL_EVENT_HANDLER(scrollViewDidScrollToTop, onScrollToTop)
 
 - (void)scrollViewDidScroll:(RCTCustomScrollView *)scrollView // [macOS]
 {
+#if TARGET_OS_OSX // [macOS
+  _lastDocumentOrigin = scrollView.documentView.frame.origin;
+#endif // macOS]
   NSTimeInterval now = CACurrentMediaTime();
   [self updateClippedSubviews];
   /**
@@ -941,9 +947,7 @@ RCT_SCROLL_EVENT_HANDLER(scrollViewDidScrollToTop, onScrollToTop)
   }
 #if !TARGET_OS_OSX // [macOS]
   RCT_FORWARD_SCROLL_EVENT(scrollViewDidScroll : scrollView);
-#else // [macOS
-  (void) scrollView;
-#endif // macOS]
+#endif // [macOS]
 }
 
 #if !TARGET_OS_OSX // [macOS]
