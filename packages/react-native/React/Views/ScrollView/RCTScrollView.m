@@ -910,7 +910,9 @@ static inline void RCTApplyTransformationAccordingLayoutDirection(
     [_scrollView setContentOffset:_scrollView.contentOffset];
   }
 
-  if (_notifyDidScroll) {
+  // only send didScroll event if scrollView is ready or the document was effectively scrolled
+  BOOL didScroll = !NSEqualPoints(_scrollView.contentView.bounds.origin, _lastScrollPosition);
+  if (_notifyDidScroll && didScroll) {
     [self scrollViewDidScroll:_scrollView];
   }
 }
@@ -956,6 +958,9 @@ RCT_SCROLL_EVENT_HANDLER(scrollViewDidScrollToTop, onScrollToTop)
 
 - (void)scrollViewDidScroll:(RCTCustomScrollView *)scrollView // [macOS]
 {
+#if TARGET_OS_OSX // [macOS
+  _lastScrollPosition = scrollView.contentView.bounds.origin;
+#endif // macOS]
   NSTimeInterval now = CACurrentMediaTime();
   [self updateClippedSubviews];
   
