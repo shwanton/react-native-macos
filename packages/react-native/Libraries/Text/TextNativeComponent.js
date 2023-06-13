@@ -47,6 +47,7 @@ const textViewConfig = {
     dataDetectorType: true,
     android_hyphenationFrequency: true,
     lineBreakStrategyIOS: true,
+    focusable: true, // [macOS]
     tooltip: true, // [macOS]
     href: true, // [macOS]
   },

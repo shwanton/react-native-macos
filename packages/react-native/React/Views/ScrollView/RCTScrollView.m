@@ -531,24 +531,6 @@ static inline UIViewAnimationOptions animationOptionsWithCurve(UIViewAnimationCu
 }
 
 #if TARGET_OS_OSX // [macOS
-- (BOOL)canBecomeKeyView
-{
-  return [self focusable];
-}
-
-- (CGRect)focusRingMaskBounds
-{
-  return [self bounds];
-}
-
-- (void)drawFocusRingMask
-{
-  if (self.enableFocusRing) {
-    NSBezierPath *borderPath = [NSBezierPath bezierPathWithRoundedRect:self.bounds xRadius:2.0 yRadius:2.0];
-    [borderPath stroke];
-  }
-}
-
 - (RCTBridge *)bridge
 {
   return [_eventDispatcher bridge];

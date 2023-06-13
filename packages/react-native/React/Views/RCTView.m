@@ -1519,7 +1519,24 @@ setBorderColor() setBorderColor(Top) setBorderColor(Right) setBorderColor(Bottom
   }
 }
 
-#pragma mark - macOS Event Handler
+#pragma mark - Responder Chain
+
+- (BOOL)needsPanelToBecomeKey {
+  // We need to override this so that mouse clicks don't move keyboard focus on focusable views by default.
+  return false;
+}
+
+- (BOOL)canBecomeKeyView
+{
+  return self.focusable;
+}
+
+- (BOOL)acceptsFirstResponder
+{
+  return [self focusable] || [super acceptsFirstResponder];
+}
+
+#pragma mark - Event Handler
 
 - (void)resetCursorRects
 {
@@ -1530,16 +1547,6 @@ setBorderColor() setBorderColor(Top) setBorderColor(Right) setBorderColor(Bottom
     [self addCursorRect:self.bounds cursor:cursor];
   }
   [self updateMouseOverIfNeeded];
-}
-
-- (BOOL)needsPanelToBecomeKey {
-	// We need to override this so that mouse clicks don't move keyboard focus on focusable views by default. 
-	return false;
-}
-
-- (BOOL)acceptsFirstResponder
-{
-	return [self focusable] || [super acceptsFirstResponder];
 }
 
 - (void)updateTrackingAreas

@@ -372,6 +372,21 @@ static RCTUIView *RCTUIViewCommonInit(RCTUIView *self)
   return [[self window] makeFirstResponder:self];
 }
 
+- (BOOL)canBecomeKeyView
+{
+  return self.focusable;
+}
+
+- (NSRect)focusRingMaskBounds {
+  return [self bounds];
+}
+
+- (void)drawFocusRingMask {
+  if ([self enableFocusRing]) {
+    NSRectFill(self.bounds);
+  }
+}
+
 @synthesize userInteractionEnabled = _userInteractionEnabled;
 
 - (NSView *)hitTest:(CGPoint)point withEvent:(__unused UIEvent *)event

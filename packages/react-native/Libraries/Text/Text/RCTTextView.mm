@@ -161,9 +161,6 @@
   }
 #else // [macOS
   _textView.selectable = _selectable;
-  if (_selectable) {
-    [self setFocusable:YES];
-  }
 #endif // macOS]
 }
 
@@ -522,21 +519,6 @@
   return _selectable;
 }
 #else // [macOS
-- (BOOL)canBecomeKeyView
-{
-  return self.focusable;
-}
-
-- (void)drawFocusRingMask {
-  if (self.focusable && self.enableFocusRing) {
-    NSRectFill([self bounds]);
-  }
-}
-
-- (NSRect)focusRingMaskBounds {
-  return [self bounds];
-}
-
 - (BOOL)becomeFirstResponder
 {
   if (![super becomeFirstResponder]) {

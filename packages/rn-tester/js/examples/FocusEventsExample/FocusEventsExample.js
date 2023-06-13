@@ -177,7 +177,7 @@ class FocusEventExample extends React.Component<{}, State> {
                     }));
                   }}>
                   <View>
-                    <Text selectable={true}>Selectable text</Text>
+                    <Text selectable={true} focusable={true}>Selectable text</Text>
                   </View>
                 </View>
                 <View
@@ -272,7 +272,6 @@ var styles = StyleSheet.create({
       },
     }),
     borderWidth: StyleSheet.hairlineWidth,
-    flex: 1,
     fontSize: 13,
     padding: 4,
   },
