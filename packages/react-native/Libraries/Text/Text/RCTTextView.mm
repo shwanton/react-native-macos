@@ -111,6 +111,9 @@
     _textView.layoutManager.usesFontLeading = NO;
     _textStorage = _textView.textStorage;
     [self addSubview:_textView];
+    
+    // AppKit skips RCTTextView when setting the accessibility parent, breaking tests using a testID
+    _textView.accessibilityParent = self;
 #endif // macOS]
     RCTUIViewSetContentModeRedraw(self); // [macOS]
   }
