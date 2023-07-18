@@ -67,6 +67,7 @@ const virtualTextViewConfig = {
     isHighlighted: true,
     isPressable: true,
     maxFontSizeMultiplier: true,
+    href: true, // [macOS]
   },
   uiViewClassName: 'RCTVirtualText',
 };
