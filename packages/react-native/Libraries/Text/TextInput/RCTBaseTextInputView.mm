@@ -861,6 +861,10 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)decoder)
 
 - (void)didMoveToWindow
 {
+  if (!self.window) {
+    return;
+  }
+  
   if (self.autoFocus && !_didMoveToWindow) {
     [self.backedTextInputView reactFocus];
   } else {

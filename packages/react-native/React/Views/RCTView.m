@@ -794,6 +794,8 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
 - (void)viewDidMoveToWindow
 {
   [self updateClipViewBoundsObserverIfNeeded];
+  [self reactViewDidMoveToWindow]; // [macOS] Github#1412
+
   [super viewDidMoveToWindow];
 }
 
@@ -818,10 +820,6 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
                                                object:clipView];
     [self updateMouseOverIfNeeded];
   }
-
-  [self reactViewDidMoveToWindow]; // [macOS] Github#1412
-
-  [super viewDidMoveToWindow];
 }
 
 - (void)updateMouseOverIfNeeded
