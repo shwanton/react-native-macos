@@ -249,10 +249,6 @@ static RCTUIColor *defaultPlaceholderColor(void) // [macOS]
 
 - (BOOL)resignFirstResponder
 {
-  if (self.selectable) {
-    self.selectedRange = NSMakeRange(NSNotFound, 0);
-  }
-
   BOOL success = [super resignFirstResponder];
   
   if (success) {

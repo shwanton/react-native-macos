@@ -462,10 +462,6 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)decoder)
     if ([self.backedTextInputView respondsToSelector:@selector(selectAll:)]) {
       [self.backedTextInputView selectAll:nil];
     }
-#if TARGET_OS_OSX // [macOS
-  } else {
-    [self.backedTextInputView setSelectedTextRange:NSMakeRange(NSNotFound, 0) notifyDelegate:NO];
-#endif // macOS]
   }
 
   [_eventDispatcher sendTextEventWithType:RCTTextEventTypeFocus
