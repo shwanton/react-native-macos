@@ -330,7 +330,7 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)decoder)
 #else // [macOS
   NSInteger startPosition = MIN(start, end);
   NSInteger endPosition = MAX(start, end);
-  [self.backedTextInputView setSelectedTextRange:NSMakeRange(startPosition, endPosition - startPosition) notifyDelegate:NO];
+  [self.backedTextInputView setSelectedTextRange:NSMakeRange(startPosition, endPosition - startPosition) notifyDelegate:YES];
 #endif // macOS]
 }
 
