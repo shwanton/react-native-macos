@@ -96,12 +96,16 @@
     self.accessibilityTraits |= UIAccessibilityTraitStaticText;
     self.opaque = NO;
 #else // [macOS
+    // Make the RCTTextView accessible and available in the a11y hierarchy.
+    self.accessibilityElement = YES;
     self.accessibilityRole = NSAccessibilityStaticTextRole;
     // Fix blurry text on non-retina displays.
     self.canDrawSubviewsIntoLayer = YES;
     // The NSTextView is responsible for drawing text and managing selection.
     _textView = [[RCTUnfocusableTextView alloc] initWithFrame:self.bounds];
     _textView.delegate = self;
+    // The RCTUnfocusableTextView is only used for rendering and should not appear in the a11y hierarchy.
+    _textView.accessibilityElement = NO;
     _textView.usesFontPanel = NO;
     _textView.drawsBackground = NO;
     _textView.linkTextAttributes = @{};
@@ -111,9 +115,6 @@
     _textView.layoutManager.usesFontLeading = NO;
     _textStorage = _textView.textStorage;
     [self addSubview:_textView];
-    
-    // AppKit skips RCTTextView when setting the accessibility parent, breaking tests using a testID
-    _textView.accessibilityParent = self;
 #endif // macOS]
     RCTUIViewSetContentModeRedraw(self); // [macOS]
   }
