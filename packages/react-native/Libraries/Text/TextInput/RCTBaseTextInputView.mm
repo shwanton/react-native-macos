@@ -201,6 +201,13 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)decoder)
                                 range:NSMakeRange(0, attributedTextCopy.length)];
 
   textNeedsUpdate = ([self textOf:attributedTextCopy equals:backedTextInputViewTextCopy] == NO);
+    
+#if TARGET_OS_OSX // [macOS
+  // If we are in a language that uses conversion (e.g. Japanese), ignore updates if we have unconverted text.
+  if ([self.backedTextInputView hasMarkedText]) {
+    textNeedsUpdate = NO;
+  }
+#endif // [macOS
 
   if ((eventLag == 0 || self.backedTextInputView.ghostTextChanging) && textNeedsUpdate) { // [macOS]
 #if !TARGET_OS_OSX // [macOS]
