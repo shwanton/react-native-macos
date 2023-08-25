@@ -503,7 +503,14 @@ using namespace facebook::react;
 
 - (void)focus
 {
+#if !TARGET_OS_OSX // [macOS]
   [_backedTextInputView becomeFirstResponder];
+#else // [macOS
+  NSWindow *window = _backedTextInputView.window;
+  if (window) {
+    [window makeFirstResponder:_backedTextInputView];
+  }
+#endif // macOS]
 }
 
 - (void)blur
