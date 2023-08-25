@@ -167,6 +167,7 @@ extern const UIAccessibilityTraits SwitchAccessibilityTrait;
 // that we can set through JS and the getter for `allowsVibrancy` can read in RCTView.
 @property (nonatomic, assign) BOOL allowsVibrancyInternal;
 
+@property (nonatomic, copy) RCTDirectEventBlock onDoubleClick;
 @property (nonatomic, copy) RCTDirectEventBlock onMouseEnter;
 @property (nonatomic, copy) RCTDirectEventBlock onMouseLeave;
 @property (nonatomic, copy) RCTDirectEventBlock onDragEnter;

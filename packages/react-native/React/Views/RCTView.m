@@ -779,6 +779,13 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
     [self setShadow:shadow];
 }
 
+- (void)setOnDoubleClick:(RCTDirectEventBlock)onDoubleClick
+{
+  if (_onDoubleClick != onDoubleClick) {
+    _onDoubleClick = [onDoubleClick copy];
+  }
+}
+
 - (void)setOnMouseEnter:(RCTDirectEventBlock)onMouseEnter
 {
   _onMouseEnter = onMouseEnter;
@@ -1532,6 +1539,15 @@ setBorderColor() setBorderColor(Top) setBorderColor(Right) setBorderColor(Bottom
 - (BOOL)acceptsFirstResponder
 {
   return [self focusable] || [super acceptsFirstResponder];
+}
+
+- (void)mouseUp:(NSEvent *)event
+{
+  if (_onDoubleClick && event.clickCount == 2){
+    _onDoubleClick(nil);
+  } else {
+    [super mouseUp:event];
+  }
 }
 
 #pragma mark - Event Handler
