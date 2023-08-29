@@ -24,27 +24,27 @@
 # Disabling this is okay because per (Github#774) this test, which is redundant to Azure Devops test,
 # fails in the fork because of Microsoft's V8 upgrade to Android
 #
-#FROM reactnativecommunity/react-native-android:6.1
+#FROM reactnativecommunity/react-native-android:7.0
 
 LABEL Description="React Native Android Test Image"
 LABEL maintainer="Héctor Ramos <hector@fb.com>"
 
 ARG BUCK_BUILD
 # set default environment variables
-ENV GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=\"-Xmx512m -XX:+HeapDumpOnOutOfMemoryError\""
-ENV KOTLIN_HOME="third-party/kotlin"
+ENV GRADLE_OPTS="-Dorg.gradle.daemon=false -Dfile.encoding=utf-8 -Dorg.gradle.jvmargs=\"-Xmx512m -XX:+HeapDumpOnOutOfMemoryError\""
+ENV KOTLIN_HOME="packages/react-native/third-party/kotlin"
 
 ADD .buckconfig /app/.buckconfig
 ADD .buckjavaargs /app/.buckjavaargs
 ADD BUCK /app/BUCK
-ADD Libraries /app/Libraries
-ADD ReactAndroid /app/ReactAndroid
-ADD ReactCommon /app/ReactCommon
-ADD React /app/React
+ADD packages/react-native/Libraries /app/packages/react-native/Libraries
+ADD packages/react-native/ReactAndroid /app/packages/react-native/ReactAndroid
+ADD packages/react-native/ReactCommon /app/packages/react-native/ReactCommon
+ADD packages/react-native/React /app/packages/react-native/React
 ADD keystores /app/keystores
 ADD packages/react-native-codegen /app/packages/react-native-codegen
 ADD tools /app/tools
-add scripts /app/scripts
+ADD scripts /app/scripts
 
 # add third party dependencies
 ADD Folly /app/Folly
@@ -55,16 +55,10 @@ ADD jsc /app/jsc
 # set workdir
 WORKDIR /app
 
-RUN scripts/download-kotlin-compiler-with-buck.sh
+RUN scripts/buck/buck_fetch.sh
 
-RUN buck fetch ReactAndroid/src/test/java/com/facebook/react/modules
-RUN buck fetch ReactAndroid/src/main/java/com/facebook/react
-RUN buck fetch ReactAndroid/src/main/java/com/facebook/react/shell
-RUN buck fetch ReactAndroid/src/test/...
-RUN buck fetch ReactAndroid/src/androidTest/...
-
-RUN buck build ReactAndroid/src/main/java/com/facebook/react
-RUN buck build ReactAndroid/src/main/java/com/facebook/react/shell
+RUN buck build packages/react-native/ReactAndroid/src/main/java/com/facebook/react
+RUN buck build packages/react-native/ReactAndroid/src/main/java/com/facebook/react/shell
 
 ADD gradle /app/gradle
 ADD gradlew /app/gradlew
@@ -83,4 +77,4 @@ ADD . /app
 
 RUN yarn
 
-RUN ./gradlew :ReactAndroid:assembleDebug
+RUN ./gradlew :packages:react-native:ReactAndroid:assembleDebug

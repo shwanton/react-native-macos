@@ -10,17 +10,21 @@
 
 'use strict';
 
-const React = require('react');
-
-const {
+import * as React from 'react';
+import {useContext, useState} from 'react';
+import {
   Button,
   Platform,
   Text,
   TextInput,
   View,
   StyleSheet,
-} = require('react-native');
+  Switch, // [macOS]
+} from 'react-native';
+import type {TextStyle} from 'react-native/Libraries/StyleSheet/StyleSheet';
 
+import RNTesterButton from '../../components/RNTesterButton';
+import {RNTesterThemeContext} from '../../components/RNTesterTheme';
 import type {RNTesterModuleExample} from '../../types/RNTesterTypes';
 
 const styles = StyleSheet.create({
@@ -49,9 +53,10 @@ const styles = StyleSheet.create({
   },
   label: {
     width: 115,
-    alignItems: 'flex-end',
+    textAlign: 'right',
     marginRight: 10,
     paddingTop: 2,
+    fontSize: 12,
   },
   inputContainer: {
     flex: 1,
@@ -80,15 +85,28 @@ const styles = StyleSheet.create({
     fontSize: 13,
     padding: 4,
   },
+  // [macOS
+  passthroughAllKeyEvents: {
+    alignItems: 'center',
+    padding: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  // macOS]
+  screenshotArea: {
+    position: 'absolute',
+    top: -5,
+    left: 120,
+    right: -5,
+    bottom: -5,
+  },
 });
 
 class WithLabel extends React.Component<$FlowFixMeProps> {
   render(): React.Node {
     return (
       <View style={styles.labelContainer}>
-        <View style={styles.label}>
-          <Text>{this.props.label}</Text>
-        </View>
+        <Text style={styles.label}>{this.props.label}</Text>
         <View style={styles.inputContainer}>{this.props.children}</View>
       </View>
     );
@@ -334,6 +352,8 @@ class SubmitBehaviorExample extends React.Component<{...}> {
   }
 }
 
+let counter = 0; // [macOS]
+
 class TextEventsExample extends React.Component<{...}, $FlowFixMeState> {
   state:
     | any
@@ -341,24 +361,64 @@ class TextEventsExample extends React.Component<{...}, $FlowFixMeState> {
         curText: string,
         prev2Text: string,
         prev3Text: string,
+        // [macOS
+        prev4Text: string,
+        prev5Text: string,
+        prev6Text: string,
+        // macOS]
         prevText: string,
+        passthroughAllKeyEvents: boolean, // [macOS]
       } = {
     curText: '<No Event>',
     prevText: '<No Event>',
     prev2Text: '<No Event>',
     prev3Text: '<No Event>',
+    // [macOS
+    prev4Text: '<No Event>',
+    prev5Text: '<No Event>',
+    prev6Text: '<No Event>',
+    passthroughAllKeyEvents: false,
+    // macOS]
   };
 
   updateText = (text: string) => {
+    counter++; // [macOS]
     this.setState(state => {
       return {
-        curText: text,
+        curText: text + ' [' + counter + ']', // [macOS]
         prevText: state.curText,
         prev2Text: state.prevText,
         prev3Text: state.prev2Text,
+        // [macOS
+        prev4Text: state.prev3Text,
+        prev5Text: state.prev4Text,
+        prev6Text: state.prev5Text,
+        // macOS]
       };
     });
   };
+
+  // [macOS
+  clearLog = () => {
+    this.setState(() => {
+      return {
+        curText: '<No Event>',
+        prevText: '<No Event>',
+        prev2Text: '<No Event>',
+        prev3Text: '<No Event>',
+        prev4Text: '<No Event>',
+        prev5Text: '<No Event>',
+        prev6Text: '<No Event>',
+      };
+    });
+  };
+
+  toggleSwitch = (value: boolean) => {
+    this.setState(() => {
+      return {passthroughAllKeyEvents: value};
+    });
+  };
+  // macOS]
 
   render(): React.Node {
     return (
@@ -388,6 +448,15 @@ class TextEventsExample extends React.Component<{...}, $FlowFixMeState> {
           onKeyPress={event =>
             this.updateText('onKeyPress key: ' + event.nativeEvent.key)
           }
+          // [macOS
+          onKeyDown={event =>
+            this.updateText('onKeyDown key: ' + event.nativeEvent.key)
+          }
+          onKeyUp={event =>
+            this.updateText('onKeyUp key: ' + event.nativeEvent.key)
+          }
+          passthroughAllKeyEvents={this.state.passthroughAllKeyEvents}
+          // macOS]
           style={styles.singleLine}
         />
         <Text style={styles.eventLabel}>
@@ -395,8 +464,25 @@ class TextEventsExample extends React.Component<{...}, $FlowFixMeState> {
           {'\n'}
           (prev: {this.state.prevText}){'\n'}
           (prev2: {this.state.prev2Text}){'\n'}
-          (prev3: {this.state.prev3Text})
+          (prev3: {this.state.prev3Text}){'\n'}
+          (prev4: {this.state.prev4Text}){'\n'}
+          (prev5: {this.state.prev5Text}){'\n'}
+          (prev6: {this.state.prev6Text})
         </Text>
+        {/* [macOS */}
+        <Button
+          testID="event_clear_button"
+          onPress={this.clearLog}
+          title="Clear event log"
+        />
+        <View style={styles.passthroughAllKeyEvents}>
+          <Text>{'Pass through all key events'}</Text>
+          <Switch
+            value={this.state.passthroughAllKeyEvents}
+            onValueChange={this.toggleSwitch}
+          />
+        </View>
+        {/* macOS] */}
       </View>
     );
   }
@@ -589,6 +675,239 @@ function UncontrolledExample() {
       onFocus={() => setIsFocused(true)}
       onBlur={() => setIsFocused(false)}
     />
+  );
+}
+
+const TextStylesExample = React.memo(() => {
+  const theme = useContext(RNTesterThemeContext);
+
+  return (
+    <TextStylesContainer
+      examples={[
+        {
+          name: 'backgroundColor',
+          textStyles: [
+            {backgroundColor: theme.SystemBackgroundColor},
+            {backgroundColor: 'red'},
+            {backgroundColor: 'orange'},
+            {backgroundColor: 'yellow'},
+            {backgroundColor: 'green'},
+            {backgroundColor: 'blue'},
+          ],
+        },
+        {
+          name: 'color',
+          textStyles: [
+            {color: theme.LabelColor},
+            {color: 'red'},
+            {color: 'orange'},
+            {color: 'yellow'},
+            {color: 'green'},
+            {color: 'blue'},
+          ],
+        },
+        {
+          name: 'fontFamily',
+          textStyles: [
+            {fontFamily: 'sans-serif'},
+            {fontFamily: 'serif'},
+            {fontFamily: 'monospace'},
+          ],
+        },
+        {
+          name: 'fontSize',
+          textStyles: [
+            {fontSize: 8},
+            {fontSize: 10},
+            {fontSize: 12},
+            {fontSize: 14},
+            {fontSize: 16},
+            {fontSize: 18},
+          ],
+        },
+        {
+          name: 'fontStyle',
+          textStyles: [{fontStyle: 'normal'}, {fontStyle: 'italic'}],
+        },
+        {
+          name: 'fontWeight',
+          textStyles: [
+            {fontWeight: 'normal'},
+            {fontWeight: 'bold'},
+            {fontWeight: '200'},
+            {fontWeight: '400'},
+            {fontWeight: '600'},
+            {fontWeight: '800'},
+          ],
+        },
+        {
+          name: 'letterSpacing',
+          textStyles: [
+            {letterSpacing: 0},
+            {letterSpacing: 1},
+            {letterSpacing: 2},
+            {letterSpacing: 3},
+            {letterSpacing: 4},
+            {letterSpacing: 5},
+          ],
+        },
+        {
+          name: 'lineHeight',
+          multiline: true,
+          textStyles: [
+            {lineHeight: 4},
+            {lineHeight: 8},
+            {lineHeight: 16},
+            {lineHeight: 24},
+          ],
+        },
+        {
+          name: 'textDecorationLine',
+          textStyles: [
+            {textDecorationLine: 'none'},
+            {textDecorationLine: 'underline'},
+            {textDecorationLine: 'line-through'},
+            {textDecorationLine: 'underline line-through'},
+          ],
+        },
+        {
+          name: 'textShadow',
+          textStyles: [
+            {
+              textShadowColor: 'black',
+              textShadowOffset: {width: 0, height: 0},
+              textShadowRadius: 0,
+            },
+            {
+              textShadowColor: 'black',
+              textShadowOffset: {width: 0, height: 0},
+              textShadowRadius: 5,
+            },
+            {
+              textShadowColor: 'red',
+              textShadowOffset: {width: 0, height: 0},
+              textShadowRadius: 5,
+            },
+            {
+              textShadowColor: 'blue',
+              textShadowOffset: {width: 0, height: -5},
+              textShadowRadius: 5,
+            },
+            {
+              textShadowColor: 'green',
+              textShadowOffset: {width: 0, height: 5},
+              textShadowRadius: 5,
+            },
+            {
+              textShadowColor: 'orange',
+              textShadowOffset: {width: 10, height: 0},
+              textShadowRadius: 5,
+            },
+          ],
+        },
+      ]}
+    />
+  );
+});
+
+type TextStylesContainerProps = {
+  examples: $ReadOnlyArray<{
+    name: string,
+    textStyles: $ReadOnlyArray<TextStyle>,
+    multiline?: boolean,
+  }>,
+};
+
+function TextStylesContainer({examples}: TextStylesContainerProps) {
+  const [offset, setOffset] = useState(0);
+
+  const MAX_CYCLES = 6;
+
+  return (
+    <View>
+      <RNTesterButton
+        testID="cycle-styles"
+        textTestID="cycle-styles-label"
+        onPress={() => setOffset((offset + 1) % MAX_CYCLES)}>
+        Cycle {offset + 1}/{MAX_CYCLES}
+      </RNTesterButton>
+      <View>
+        <View testID="styles-screenshot-area" style={styles.screenshotArea} />
+        {examples.map(({name, multiline, textStyles}) => (
+          <WithLabel label={name} key={name}>
+            {multiline ? (
+              <MultilineStyledTextInput
+                name={name}
+                textStyles={textStyles}
+                styleOffset={offset}
+              />
+            ) : (
+              <StyledTextInput
+                name={name}
+                textStyles={textStyles}
+                styleOffset={offset}
+              />
+            )}
+          </WithLabel>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+type StyledTextInputProps = {
+  name: string,
+  textStyles: $ReadOnlyArray<TextStyle>,
+  styleOffset: number,
+};
+
+function StyledTextInput({
+  name,
+  textStyles,
+  styleOffset,
+}: StyledTextInputProps) {
+  return (
+    <TextInput
+      style={[
+        styles.default,
+        textStyles[(0 + styleOffset) % textStyles.length],
+      ]}
+      testID={`style-${name}`}>
+      <Text>He</Text>
+      <Text style={textStyles[(1 + styleOffset) % textStyles.length]}>ll</Text>
+      <Text style={textStyles[(2 + styleOffset) % textStyles.length]}>
+        o,
+        <Text style={textStyles[(0 + styleOffset) % textStyles.length]}> </Text>
+      </Text>
+      <Text style={textStyles[(3 + styleOffset) % textStyles.length]}>Wo</Text>
+      <Text style={textStyles[(4 + styleOffset) % textStyles.length]}>rl</Text>
+      <Text style={textStyles[(5 + styleOffset) % textStyles.length]}>d!</Text>
+    </TextInput>
+  );
+}
+
+function MultilineStyledTextInput({
+  name,
+  textStyles,
+  styleOffset,
+}: StyledTextInputProps) {
+  return (
+    <TextInput
+      multiline={true}
+      style={[
+        styles.default,
+        textStyles[(0 + styleOffset) % textStyles.length],
+      ]}
+      testID={`style-${name}`}>
+      <Text>Hel{'\n'}</Text>
+      <Text style={textStyles[(1 + styleOffset) % textStyles.length]}>
+        lo {'\n'}
+      </Text>
+      <Text style={textStyles[(2 + styleOffset) % textStyles.length]}>
+        Wor{'\n'}
+      </Text>
+      <Text style={textStyles[(3 + styleOffset) % textStyles.length]}>ld!</Text>
+    </TextInput>
   );
 }
 
@@ -873,8 +1192,11 @@ module.exports = ([
   {
     title: 'Uncontrolled component with layout changes',
     name: 'uncontrolledComponent',
-    render: function (): React.Node {
-      return <UncontrolledExample />;
-    },
+    render: () => <UncontrolledExample />,
+  },
+  {
+    title: 'Text styles',
+    name: 'textStyles',
+    render: () => <TextStylesExample />,
   },
 ]: Array<RNTesterModuleExample>);

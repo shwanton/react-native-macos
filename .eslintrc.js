@@ -36,7 +36,7 @@ module.exports = {
     },
 
     {
-      files: ['Libraries/**/*.js'],
+      files: ['packages/react-native/Libraries/**/*.js'],
       rules: {
         '@react-native/platform-colors': 2,
         '@react-native/specs/react-native-modules': 2,
@@ -47,7 +47,7 @@ module.exports = {
       },
     },
     {
-      files: ['flow-typed/**/*.js'],
+      files: ['packages/react-native/flow-typed/**/*.js'],
       rules: {
         'lint/valid-flow-typed-signature': 2,
         'no-unused-vars': 0,
@@ -59,7 +59,7 @@ module.exports = {
         '**/__fixtures__/**/*.js',
         '**/__mocks__/**/*.js',
         '**/__tests__/**/*.js',
-        'jest/**/*.js',
+        'packages/react-native/jest/**/*.js',
         'packages/rn-tester/**/*.js',
       ],
       globals: {
@@ -89,6 +89,16 @@ module.exports = {
         '@typescript-eslint/no-shadow': 'off',
         'no-self-compare': 'off',
         'react/self-closing-comp': 'off',
+      },
+    },
+    {
+      files: ['**/*.d.ts'],
+      plugins: ['redundant-undefined'],
+      rules: {
+        'redundant-undefined/redundant-undefined': [
+          'error',
+          {followExactOptionalPropertyTypes: true},
+        ],
       },
     },
   ],

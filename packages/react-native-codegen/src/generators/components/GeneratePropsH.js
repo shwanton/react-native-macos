@@ -19,11 +19,11 @@ const {
 const {
   convertDefaultTypeToString,
   getEnumMaskName,
-  getEnumName,
-  toSafeCppString,
   generateStructName,
   toIntEnumValueName,
 } = require('./CppHelpers.js');
+
+const {getEnumName, toSafeCppString} = require('../Utils');
 
 import type {
   ExtendsPropsShape,
@@ -667,8 +667,6 @@ function generateStruct(
         return;
       case 'Int32EnumTypeAnnotation':
         return;
-      case 'DoubleTypeAnnotation':
-        return;
       case 'ObjectTypeAnnotation':
         const props = property.typeAnnotation.properties;
         if (props == null) {
@@ -677,6 +675,8 @@ function generateStruct(
           );
         }
         generateStruct(structs, componentName, nameParts.concat([name]), props);
+        return;
+      case 'MixedTypeAnnotation':
         return;
       default:
         (property.typeAnnotation.type: empty);

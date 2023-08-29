@@ -197,13 +197,14 @@ const ALL_PROP_TYPES_NO_EVENTS = `
 
 const codegenNativeComponent = require('codegenNativeComponent');
 
-import type {Int32, Double, Float, WithDefault} from 'CodegenTypes';
+import type {Int32, Double, Float, WithDefault, UnsafeMixed} from 'CodegenTypes';
 import type {ImageSource} from 'ImageSource';
 import type {
   ColorValue,
   ColorArrayValue,
   PointValue,
   EdgeInsetsValue,
+  DimensionValue,
 } from 'StyleSheetTypes';
 import type {ViewProps} from 'ViewPropTypes';
 import type {HostComponent} from 'react-native';
@@ -302,6 +303,17 @@ export interface ModuleProps extends ViewProps {
   insets_optional_key?: EdgeInsetsValue;
   insets_optional_value: EdgeInsetsValue | null | undefined;
   insets_optional_both?: EdgeInsetsValue | null | undefined;
+
+
+  // DimensionValue props
+  dimension_required: DimensionValue;
+  dimension_optional_key?: DimensionValue;
+  dimension_optional_value: DimensionValue | null | undefined;
+  dimension_optional_both?: DimensionValue | null | undefined;
+
+  // Mixed props
+  mixed_required: UnsafeMixed,
+  mixed_optional_key?: UnsafeMixed,
 }
 
 export default codegenNativeComponent<ModuleProps>(
@@ -330,6 +342,7 @@ import type {
   ColorArrayValue,
   PointValue,
   EdgeInsetsValue,
+  DimensionValue,
 } from 'StyleSheetTypes';
 import type {ViewProps} from 'ViewPropTypes';
 import type {HostComponent} from 'react-native';
@@ -402,6 +415,12 @@ export interface ModuleProps extends ViewProps {
   array_insets_optional_key?: ReadonlyArray<EdgeInsetsValue>;
   array_insets_optional_value: ReadonlyArray<EdgeInsetsValue> | null | undefined;
   array_insets_optional_both?: ReadonlyArray<EdgeInsetsValue> | null | undefined;
+
+  // DimensionValue props
+  array_dimension_required: ReadonlyArray<DimensionValue>;
+  array_dimension_optional_key?: ReadonlyArray<DimensionValue>;
+  array_dimension_optional_value: ReadonlyArray<DimensionValue> | null | undefined;
+  array_dimension_optional_both?: ReadonlyArray<DimensionValue> | null | undefined;
 
   // Object props
   array_object_required: ReadonlyArray<Readonly<{prop: string}>>;
@@ -622,6 +641,7 @@ import type {
   ColorArrayValue,
   PointValue,
   EdgeInsetsValue,
+  DimensionValue,
 } from 'StyleSheetTypes';
 import type {ViewProps} from 'ViewPropTypes';
 import type {HostComponent} from 'react-native';
@@ -686,6 +706,12 @@ export interface ModuleProps extends ViewProps {
   insets_optional_key: Readonly<{prop?: EdgeInsetsValue}>;
   insets_optional_value: Readonly<{prop: EdgeInsetsValue | null | undefined}>;
   insets_optional_both: Readonly<{prop?: EdgeInsetsValue | null | undefined}>;
+
+  // DimensionValue props
+  dimension_required: Readonly<{prop: DimensionValue}>;
+  dimension_optional_key: Readonly<{prop?: DimensionValue}>;
+  dimension_optional_value: Readonly<{prop: DimensionValue | null | undefined}>;
+  dimension_optional_both: Readonly<{prop?: DimensionValue | null | undefined}>;
 
   // Nested object props
   object_required: Readonly<{prop: Readonly<{nestedProp: string}>}>;

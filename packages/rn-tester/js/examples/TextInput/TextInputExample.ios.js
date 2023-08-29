@@ -365,6 +365,7 @@ function AutoCorrectSpellCheckGrammarCheckCallbacks(): React.Node {
 }
 
 function OnDragEnterOnDragLeaveOnDrop(): React.Node {
+  // $FlowFixMe[missing-empty-array-annot]
   const [log, setLog] = React.useState([]);
   const appendLog = (line: string) => {
     const limit = 6;
@@ -408,6 +409,7 @@ function OnDragEnterOnDragLeaveOnDrop(): React.Node {
 }
 
 function OnPaste(): React.Node {
+  // $FlowFixMe[missing-empty-array-annot]
   const [log, setLog] = React.useState([]);
   const appendLog = (line: string) => {
     const limit = 3;
@@ -454,7 +456,7 @@ function OnPaste(): React.Node {
     </>
   );
 }
-// [macOS]
+// macOS]
 
 exports.displayName = (undefined: ?string);
 exports.title = 'TextInput';
@@ -608,6 +610,10 @@ exports.examples = ([
   },
   {
     title: 'Colored highlight/cursor for text input',
+    // [macOS
+    description:
+      ('Note: On macOS, the selectionColor prop does not change the cursor color.': string),
+    // macOS]
     render: function (): React.Node {
       return (
         <View>
@@ -970,6 +976,13 @@ exports.examples = ([
           <WithLabel label="name">
             <TextInput textContentType="name" style={styles.default} />
           </WithLabel>
+          <WithLabel label="postalCode, when autoComplete set">
+            <TextInput
+              textContentType="postalCode"
+              autoComplete="email"
+              style={styles.default}
+            />
+          </WithLabel>
         </View>
       );
     },
@@ -1107,6 +1120,55 @@ if (Platform.OS === 'macos') {
         return <OnPaste />;
       },
     },
+    {
+      title: 'Cursor color',
+      render: function (): React.Node {
+        return (
+          <View>
+            <TextInput
+              placeholder="Single line"
+              cursorColor="#00FF00"
+              placeholderTextColor="grey"
+              style={[
+                styles.default,
+                {backgroundColor: 'black', color: 'white', marginBottom: 4},
+              ]}
+            />
+            <TextInput
+              multiline={true}
+              placeholder="Multiline"
+              cursorColor="#00FF00"
+              placeholderTextColor="grey"
+              style={[
+                styles.default,
+                {backgroundColor: 'black', color: 'white', marginBottom: 4},
+              ]}
+            />
+            <TextInput
+              placeholder="Single line with selection color"
+              cursorColor="#00FF00"
+              selectionColor="yellow"
+              placeholderTextColor="grey"
+              style={[
+                styles.default,
+                {backgroundColor: 'black', color: 'white', marginBottom: 4},
+              ]}
+            />
+            <TextInput
+              multiline={true}
+              placeholder="Multiline with selection color"
+              cursorColor="#00FF00"
+              selectionColor="yellow"
+              placeholderTextColor="grey"
+              style={[
+                styles.default,
+                {backgroundColor: 'black', color: 'white'},
+              ]}
+            />
+          </View>
+        );
+      },
+    },
   );
 }
-// [macOS]
+// macOS]
