@@ -18,8 +18,8 @@ static void *TextFieldSelectionObservingContext = &TextFieldSelectionObservingCo
 + (BOOL)isShiftOrOptionKeyDown
 {
     NSEvent* event = [NSApp currentEvent];
-    auto isShiftKeyDown = (event.modifierFlags & NSEventModifierFlagShift) == NSEventModifierFlagShift;
-    auto isOptionKeyDown = (event.modifierFlags & NSEventModifierFlagOption) == NSEventModifierFlagOption;
+    BOOL isShiftKeyDown = (event.modifierFlags & NSEventModifierFlagShift) == NSEventModifierFlagShift;
+    BOOL isOptionKeyDown = (event.modifierFlags & NSEventModifierFlagOption) == NSEventModifierFlagOption;
     return isShiftKeyDown || isOptionKeyDown;
 }
 @end
