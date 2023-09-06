@@ -7,6 +7,7 @@
 
 #include "RuntimeSchedulerBinding.h"
 #include <ReactCommon/SchedulerPriority.h>
+#include "RuntimeScheduler.h"
 #include "SchedulerPriorityUtils.h"
 #include "primitives.h"
 
@@ -78,7 +79,7 @@ jsi::Value RuntimeSchedulerBinding::get(
             jsi::Runtime &runtime,
             jsi::Value const &,
             jsi::Value const *arguments,
-            size_t) noexcept -> jsi::Value {
+            size_t count) noexcept -> jsi::Value {
           SchedulerPriority priority = fromRawValue(arguments[0].getNumber());
           auto callback = arguments[1].getObject(runtime).getFunction(runtime);
 

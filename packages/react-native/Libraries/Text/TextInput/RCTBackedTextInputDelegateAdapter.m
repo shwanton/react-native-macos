@@ -372,7 +372,6 @@ static void *TextFieldSelectionObservingContext = &TextFieldSelectionObservingCo
     _ignoreNextTextInputCall = NO;
     return;
   }
-  _lastStringStateWasUpdatedWith = _backedTextInputView.attributedText;
   _textDidChangeIsComing = NO;
   [_backedTextInputView.textInputDelegate textInputDidChange];
 }
@@ -381,13 +380,14 @@ static void *TextFieldSelectionObservingContext = &TextFieldSelectionObservingCo
 
 - (void)textViewDidChangeSelection:(__unused UITextView *)textView
 {
-  if (![_lastStringStateWasUpdatedWith isEqual:_backedTextInputView.attributedText]) {
+  if (_lastStringStateWasUpdatedWith && ![_lastStringStateWasUpdatedWith isEqual:_backedTextInputView.attributedText]) {
     [self textViewDidChange:_backedTextInputView];
 
     if (![_backedTextInputView isGhostTextChanging]) { // [macOS]
       _ignoreNextTextInputCall = YES;
     } // [macOS]
   }
+  _lastStringStateWasUpdatedWith = _backedTextInputView.attributedText;
   [self textViewProbablyDidChangeSelection];
 }
 
