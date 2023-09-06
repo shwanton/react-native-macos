@@ -15,12 +15,6 @@ NSString *const RCTBundleURLProviderUpdatedNotification = @"RCTBundleURLProvider
 
 const NSUInteger kRCTBundleURLProviderDefaultPort = RCT_METRO_PORT;
 
-#if !TARGET_OS_OSX // [macOS]
-NSString *const kRCTPlatformName = @"ios";
-#else // [macOS
-NSString *const kRCTPlatformName = @"macos";
-#endif // macOS]
-
 #if RCT_DEV_MENU | RCT_PACKAGER_LOADING_FUNCTIONALITY
 static BOOL kRCTAllowPackagerAccess = YES;
 void RCTBundleURLProviderAllowPackagerServerAccess(BOOL allowed)
@@ -28,7 +22,13 @@ void RCTBundleURLProviderAllowPackagerServerAccess(BOOL allowed)
   kRCTAllowPackagerAccess = allowed;
 }
 #endif
-static NSString *const kRCTPlatformName = @"ios";
+
+#if !TARGET_OS_OSX // [macOS]
+NSString *const kRCTPlatformName = @"ios";
+#else // [macOS
+NSString *const kRCTPlatformName = @"macos";
+#endif // macOS]
+
 static NSString *const kRCTPackagerSchemeKey = @"RCT_packager_scheme";
 static NSString *const kRCTJsLocationKey = @"RCT_jsLocation";
 static NSString *const kRCTEnableDevKey = @"RCT_enableDev";

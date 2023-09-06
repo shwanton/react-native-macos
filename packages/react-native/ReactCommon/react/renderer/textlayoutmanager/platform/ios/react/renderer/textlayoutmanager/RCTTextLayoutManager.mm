@@ -94,6 +94,7 @@ static NSLineBreakMode RCTNSLineBreakModeFromEllipsizeMode(EllipsizeMode ellipsi
     CGRect rect = [layoutManager usedRectForTextContainer:textContainer];
     static auto threshold = 1.0 / RCTScreenScale() + 0.01; // Size of a pixel plus some small threshold.
 
+#if !TARGET_OS_OSX // [macOS]
     // `rect`'s width is stored in double precesion.
     // `frame`'s width is also in double precesion but was stored as float in Yoga previously, precesion was lost.
     if (std::abs(RCTCeilPixelValue(rect.size.width) - frame.size.width) < threshold) {
@@ -103,6 +104,12 @@ static NSLineBreakMode RCTNSLineBreakModeFromEllipsizeMode(EllipsizeMode ellipsi
       // We could create new `NSTextStorage` for the specific frame, but that is expensive.
       origin.x -= RCTCeilPixelValue(rect.origin.x);
     }
+#else // [macOS
+    CGFloat scale = [[NSScreen mainScreen] backingScaleFactor];
+    if (std::abs(RCTCeilPixelValue(rect.size.width, scale) - frame.size.width) < threshold) {
+      origin.x -= RCTCeilPixelValue(rect.origin.x, scale);
+    }
+#endif // macOS]
   }
 
 #if TARGET_OS_MACCATALYST
@@ -288,14 +295,14 @@ static NSLineBreakMode RCTNSLineBreakModeFromEllipsizeMode(EllipsizeMode ellipsi
   NSTextContainer *textContainer = layoutManager.textContainers.firstObject;
   [layoutManager ensureLayoutForTextContainer:textContainer];
 
+  CGSize size = [layoutManager usedRectForTextContainer:textContainer].size;
+
 #if !TARGET_OS_OSX // [macOS]
   size = (CGSize){RCTCeilPixelValue(size.width), RCTCeilPixelValue(size.height)};
 #else // [macOS
   CGFloat scale = [[NSScreen mainScreen] backingScaleFactor];
   size = (CGSize){RCTCeilPixelValue(size.width, scale), RCTCeilPixelValue(size.height, scale)};
 #endif // macOS]
-
-  size = (CGSize){RCTCeilPixelValue(size.width), RCTCeilPixelValue(size.height)};
 
   __block auto attachments = TextMeasurement::Attachments{};
 

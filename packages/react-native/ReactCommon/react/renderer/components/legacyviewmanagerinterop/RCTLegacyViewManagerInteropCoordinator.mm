@@ -103,7 +103,7 @@ using namespace facebook::react;
 - (void)handleCommand:(NSString *)commandName
                  args:(NSArray *)args
              reactTag:(NSInteger)tag
-            paperView:(nonnull UIView *)paperView
+            paperView:(nonnull RCTUIView *)paperView // [macOS]
 {
   Class managerClass = _componentData.managerClass;
   [self _lookupModuleMethodsIfNecessary];
@@ -143,27 +143,27 @@ using namespace facebook::react;
   }
 }
 
-- (void)addViewToRegistry:(UIView *)view withTag:(NSInteger)tag
+- (void)addViewToRegistry:(RCTUIView *)view withTag:(NSInteger)tag // [macOS]
 {
-  [self _addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+  [self _addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, RCTUIView *> *viewRegistry) { // [macOS]
     if ([viewRegistry objectForKey:@(tag)] != NULL) {
       return;
     }
-    NSMutableDictionary<NSNumber *, UIView *> *mutableViewRegistry =
-        (NSMutableDictionary<NSNumber *, UIView *> *)viewRegistry;
+    NSMutableDictionary<NSNumber *, RCTUIView *> *mutableViewRegistry =
+        (NSMutableDictionary<NSNumber *, RCTUIView *> *)viewRegistry; // [macOS]
     [mutableViewRegistry setObject:view forKey:@(tag)];
   }];
 }
 
 - (void)removeViewFromRegistryWithTag:(NSInteger)tag
 {
-  [self _addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+  [self _addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, RCTUIView *> *viewRegistry) { // [macOS]
     if ([viewRegistry objectForKey:@(tag)] == NULL) {
       return;
     }
 
-    NSMutableDictionary<NSNumber *, UIView *> *mutableViewRegistry =
-        (NSMutableDictionary<NSNumber *, UIView *> *)viewRegistry;
+    NSMutableDictionary<NSNumber *, RCTUIView *> *mutableViewRegistry =
+        (NSMutableDictionary<NSNumber *, RCTUIView *> *)viewRegistry; // [macOS]
     [mutableViewRegistry removeObjectForKey:@(tag)];
   }];
 }
