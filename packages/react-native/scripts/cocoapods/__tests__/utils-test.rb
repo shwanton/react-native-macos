@@ -434,6 +434,60 @@ class UtilsTests < Test::Unit::TestCase
         assert_equal(user_project_mock.save_invocation_count, 1)
     end
 
+    # ================================= #
+    # Test - Apply Xcode 15 Patch       #
+    # ================================= #
+
+    def test_applyXcode15Patch_correctlyAppliesNecessaryPatch
+        # Arrange
+        first_target = prepare_target("FirstTarget")
+        second_target = prepare_target("SecondTarget")
+        third_target = TargetMock.new("ThirdTarget", [
+            BuildConfigurationMock.new("Debug", {
+              "GCC_PREPROCESSOR_DEFINITIONS" => '$(inherited) "SomeFlag=1" '
+            }),
+            BuildConfigurationMock.new("Release", {
+              "GCC_PREPROCESSOR_DEFINITIONS" => '$(inherited) "SomeFlag=1" '
+            }),
+        ], nil)
+
+        user_project_mock = UserProjectMock.new("a/path", [
+                prepare_config("Debug"),
+                prepare_config("Release"),
+            ],
+            :native_targets => [
+                first_target,
+                second_target
+            ]
+        )
+        pods_projects_mock = PodsProjectMock.new([], {"hermes-engine" => {}}, :native_targets => [
+            third_target
+        ])
+        installer = InstallerMock.new(pods_projects_mock, [
+            AggregatedProjectMock.new(user_project_mock)
+        ])
+
+        # Act
+        ReactNativePodsUtils.apply_xcode_15_patch(installer)
+
+        # Assert
+        first_target.build_configurations.each do |config|
+            assert_equal(config.build_settings["GCC_PREPROCESSOR_DEFINITIONS"].strip,
+                '$(inherited) "_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION"'
+            )
+        end
+        second_target.build_configurations.each do |config|
+            assert_equal(config.build_settings["GCC_PREPROCESSOR_DEFINITIONS"].strip,
+                '$(inherited) "_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION"'
+            )
+        end
+        third_target.build_configurations.each do |config|
+            assert_equal(config.build_settings["GCC_PREPROCESSOR_DEFINITIONS"].strip,
+                '$(inherited) "SomeFlag=1" "_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION"'
+            )
+        end
+    end
+
     # ==================================== #
     # Test - Set Node_Modules User Setting #
     # ==================================== #
@@ -676,74 +730,6 @@ class UtilsTests < Test::Unit::TestCase
         user_project_mock.build_configurations.each do |config|
             assert_equal(config.build_settings["OTHER_CFLAGS"], "$(inherited)")
         end
-    end
-
-    # ============================= #
-    # Test - Enable Hermes Profiler #
-    # ============================= #
-
-    def test_enableHermesProfiler_whenEnableHermesProfileIsTrue_setsFlagsInRelease
-        # Arrange
-        first_target = prepare_target("FirstTarget")
-        second_target = prepare_target("SecondTarget")
-        third_target = prepare_target("ThirdTarget", "com.apple.product-type.bundle")
-        user_project_mock = UserProjectMock.new("a/path", [
-                prepare_config("Debug"),
-                prepare_config("Release"),
-            ],
-            :native_targets => [
-                first_target,
-                second_target
-            ]
-        )
-        pods_projects_mock = PodsProjectMock.new([third_target], {"hermes-engine" => {}})
-        installer = InstallerMock.new(pods_projects_mock, [
-            AggregatedProjectMock.new(user_project_mock)
-        ])
-
-         # Act
-         ReactNativePodsUtils.enable_hermes_profiler(installer, enable_hermes_profiler: true)
-
-         # Assert
-         installer.target_installation_results.pod_target_installation_results.each do |pod_name, target_installation_result|
-            target_installation_result.native_target.build_configurations.each do |config|
-                if config.name != "Release"
-                    assert_nil(config.build_settings["OTHER_CFLAGS"])
-                else
-                    assert_equal(config.build_settings["OTHER_CFLAGS"], "$(inherited) -DRCT_REMOTE_PROFILE=1")
-                end
-            end
-         end
-    end
-
-    def test_enableHermesProfiler_whenEnableHermesProfileIsFalse_doesNothing
-        # Arrange
-        first_target = prepare_target("FirstTarget")
-        second_target = prepare_target("SecondTarget")
-        third_target = prepare_target("ThirdTarget", "com.apple.product-type.bundle")
-        user_project_mock = UserProjectMock.new("a/path", [
-                prepare_config("Debug"),
-                prepare_config("Release"),
-            ],
-            :native_targets => [
-                first_target,
-                second_target
-            ]
-        )
-        pods_projects_mock = PodsProjectMock.new([third_target], {"hermes-engine" => {}})
-        installer = InstallerMock.new(pods_projects_mock, [
-            AggregatedProjectMock.new(user_project_mock)
-        ])
-
-         # Act
-         ReactNativePodsUtils.enable_hermes_profiler(installer)
-
-         # Assert
-         installer.target_installation_results.pod_target_installation_results.each do |pod_name, target_installation_result|
-            target_installation_result.native_target.build_configurations.each do |config|
-                assert_nil(config.build_settings["OTHER_CFLAGS"])
-            end
-         end
     end
 end
 

@@ -97,6 +97,8 @@ class CodegenUtils
             "\"$(PODS_CONFIGURATION_BUILD_DIR)/ReactCommon/ReactCommon.framework/Headers/react/nativemodule/core\"",
             "\"$(PODS_CONFIGURATION_BUILD_DIR)/React-NativeModulesApple/React_NativeModulesApple.framework/Headers\"",
             "\"$(PODS_CONFIGURATION_BUILD_DIR)/React-RCTFabric/RCTFabric.framework/Headers\"",
+            "\"$(PODS_CONFIGURATION_BUILD_DIR)/React-debug/React_debug.framework/Headers\"",
+            "\"$(PODS_CONFIGURATION_BUILD_DIR)/React-utils/React_utils.framework/Headers\"",
           ])
         end
 
@@ -111,7 +113,7 @@ class CodegenUtils
           'source' => { :git => '' },
           'header_mappings_dir' => './',
           'platforms' => {
-            'ios' => '12.4',
+            'ios' => min_ios_version_supported,
             'osx' => '10.15'
           },
           'source_files' => "**/*.{h,mm,cpp}",
@@ -129,6 +131,8 @@ class CodegenUtils
             "ReactCommon/turbomodule/bridging": [],
             "ReactCommon/turbomodule/core": [],
             "React-NativeModulesApple": [],
+            "glog": [],
+            "DoubleConversion": [],
           }
         }
 
@@ -136,6 +140,8 @@ class CodegenUtils
           spec[:'dependencies'].merge!({
             'React-graphics': [],
             'React-Fabric': [],
+            'React-debug': [],
+            'React-utils': [],
           });
         end
 
@@ -308,7 +314,7 @@ class CodegenUtils
         :config_key => config_key
       )
       react_codegen_spec = codegen_utils.get_react_codegen_spec(
-        file_manager.join(react_native_path, "package.json"),
+        file_manager.join(relative_installation_root, react_native_path, "package.json"),
         :folly_version => folly_version,
         :fabric_enabled => fabric_enabled,
         :hermes_enabled => hermes_enabled,

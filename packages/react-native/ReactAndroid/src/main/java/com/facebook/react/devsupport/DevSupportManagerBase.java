@@ -20,10 +20,12 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
@@ -553,17 +555,30 @@ public abstract class DevSupportManagerBase implements DevSupportManager {
       return;
     }
 
-    final TextView textView = new TextView(getApplicationContext());
-    textView.setText("React Native DevMenu (" + getUniqueTag() + ")");
-    textView.setPadding(0, 50, 0, 0);
-    textView.setGravity(Gravity.CENTER);
-    textView.setTextColor(Color.BLACK);
-    textView.setTextSize(17);
-    textView.setTypeface(textView.getTypeface(), Typeface.BOLD);
+    final LinearLayout header = new LinearLayout(getApplicationContext());
+    header.setOrientation(LinearLayout.VERTICAL);
+
+    final TextView title = new TextView(getApplicationContext());
+    title.setText("React Native Dev Menu (" + getUniqueTag() + ")");
+    title.setPadding(0, 50, 0, 0);
+    title.setGravity(Gravity.CENTER);
+    title.setTextColor(Color.DKGRAY);
+    title.setTextSize(16);
+    title.setTypeface(title.getTypeface(), Typeface.BOLD);
+
+    final TextView jsExecutorLabel = new TextView(getApplicationContext());
+    jsExecutorLabel.setText(getJSExecutorDescription());
+    jsExecutorLabel.setPadding(0, 20, 0, 0);
+    jsExecutorLabel.setGravity(Gravity.CENTER);
+    jsExecutorLabel.setTextColor(Color.GRAY);
+    jsExecutorLabel.setTextSize(14);
+
+    header.addView(title);
+    header.addView(jsExecutorLabel);
 
     mDevOptionsDialog =
         new AlertDialog.Builder(context)
-            .setCustomTitle(textView)
+            .setCustomTitle(header)
             .setItems(
                 options.keySet().toArray(new String[0]),
                 new DialogInterface.OnClickListener() {
@@ -585,6 +600,10 @@ public abstract class DevSupportManagerBase implements DevSupportManager {
     if (mCurrentContext != null) {
       mCurrentContext.getJSModule(RCTNativeAppEventEmitter.class).emit("RCTDevMenuShown", null);
     }
+  }
+
+  private String getJSExecutorDescription() {
+    return "Running " + getReactInstanceDevHelper().getJavaScriptExecutorFactory().toString();
   }
 
   /**
@@ -1124,7 +1143,7 @@ public abstract class DevSupportManagerBase implements DevSupportManager {
       if (!mIsReceiverRegistered) {
         IntentFilter filter = new IntentFilter();
         filter.addAction(getReloadAppAction(mApplicationContext));
-        mApplicationContext.registerReceiver(mReloadAppBroadcastReceiver, filter);
+        compatRegisterReceiver(mApplicationContext, mReloadAppBroadcastReceiver, filter, true);
         mIsReceiverRegistered = true;
       }
 
@@ -1239,5 +1258,22 @@ public abstract class DevSupportManagerBase implements DevSupportManager {
     }
 
     return mSurfaceDelegateFactory.createSurfaceDelegate(moduleName);
+  }
+
+  /**
+   * Starting with Android 14, apps and services that target Android 14 and use context-registered
+   * receivers are required to specify a flag to indicate whether or not the receiver should be
+   * exported to all other apps on the device: either RECEIVER_EXPORTED or RECEIVER_NOT_EXPORTED
+   *
+   * <p>https://developer.android.com/about/versions/14/behavior-changes-14#runtime-receivers-exported
+   */
+  private void compatRegisterReceiver(
+      Context context, BroadcastReceiver receiver, IntentFilter filter, boolean exported) {
+    if (Build.VERSION.SDK_INT >= 34 && context.getApplicationInfo().targetSdkVersion >= 34) {
+      context.registerReceiver(
+          receiver, filter, exported ? Context.RECEIVER_EXPORTED : Context.RECEIVER_NOT_EXPORTED);
+    } else {
+      context.registerReceiver(receiver, filter);
+    }
   }
 }

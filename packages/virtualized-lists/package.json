@@ -1,6 +1,6 @@
 {
   "name": "@react-native-mac/virtualized-lists",
-  "version": "0.72.0-0",
+  "version": "0.72.1",
   "description": "Virtualized lists for React Native macOS.",
   "repository": {
     "type": "git",
@@ -22,8 +22,7 @@
     "react-test-renderer": "18.2.0"
   },
   "peerDependencies": {
-    "react-native": "*",
-    "react-test-renderer": "18.2.0"
+    "react-native": "*"
   },
   "beachball": {
     "shouldPublish": true
