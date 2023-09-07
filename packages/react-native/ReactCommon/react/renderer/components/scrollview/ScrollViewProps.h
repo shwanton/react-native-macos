@@ -69,6 +69,9 @@ class ScrollViewProps final : public ViewProps {
       ContentInsetAdjustmentBehavior::Never};
   bool scrollToOverflowEnabled{false};
   bool isInvertedVirtualizedList{false};
+#if TARGET_OS_OSX // [macOS
+  bool inverted{false};
+#endif // macOS]
 
 #pragma mark - DebugStringConvertible
 
