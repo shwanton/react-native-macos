@@ -55,11 +55,6 @@ ADD jsc /app/jsc
 # set workdir
 WORKDIR /app
 
-RUN scripts/buck/buck_fetch.sh
-
-RUN buck build packages/react-native/ReactAndroid/src/main/java/com/facebook/react
-RUN buck build packages/react-native/ReactAndroid/src/main/java/com/facebook/react/shell
-
 ADD gradle /app/gradle
 ADD gradlew /app/gradlew
 ADD settings.gradle /app/settings.gradle

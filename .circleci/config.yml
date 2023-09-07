@@ -46,7 +46,7 @@ references:
   #        Dependency Anchors
   # -------------------------
   dependency_versions:
-    xcode_version: &xcode_version "14.2.0"
+    xcode_version: &xcode_version "14.3.0"
     nodelts_image: &nodelts_image "cimg/node:18.12.1"
     nodeprevlts_image: &nodeprevlts_image "cimg/node:16.18.1"
 
@@ -62,7 +62,8 @@ references:
     hermes_workspace_cache_key: &hermes_workspace_cache_key v4-hermes-{{ .Environment.CIRCLE_JOB }}-{{ checksum "/tmp/hermes/hermesversion" }}
     hermes_workspace_debug_cache_key: &hermes_workspace_debug_cache_key v2-hermes-{{ .Environment.CIRCLE_JOB }}-debug-{{ checksum "/tmp/hermes/hermesversion" }}-{{ checksum "/tmp/react-native-version" }}
     hermes_workspace_release_cache_key: &hermes_workspace_release_cache_key v2-hermes-{{ .Environment.CIRCLE_JOB }}-release-{{ checksum "/tmp/hermes/hermesversion" }}-{{ checksum "/tmp/react-native-version" }}
-    hermes_windows_cache_key: &hermes_windows_cache_key v3-hermes-{{ .Environment.CIRCLE_JOB }}-{{ checksum "tmp/hermes/hermesversion" }}
+    hermes_linux_cache_key: &hermes_linux_cache_key v1-hermes-{{ .Environment.CIRCLE_JOB }}-linux-{{ checksum "/tmp/hermes/hermesversion" }}-{{ checksum "/tmp/react-native-version" }}
+    hermes_windows_cache_key: &hermes_windows_cache_key v2-hermes-{{ .Environment.CIRCLE_JOB }}-windows-{{ checksum "/Users/circleci/project/tmp/hermes/hermesversion" }}-{{ checksum "/tmp/react-native-version" }}
     hermes_tarball_debug_cache_key: &hermes_tarball_debug_cache_key v4-hermes-tarball-debug-{{ checksum "/tmp/hermes/hermesversion" }}-{{ checksum "/tmp/react-native-version" }}
     hermes_tarball_release_cache_key: &hermes_tarball_release_cache_key v3-hermes-tarball-release-{{ checksum "/tmp/hermes/hermesversion" }}-{{ checksum "/tmp/react-native-version" }}
     pods_cache_key: &pods_cache_key v8-pods-{{ .Environment.CIRCLE_JOB }}-{{ checksum "packages/rn-tester/Podfile.lock.bak" }}-{{ checksum "packages/rn-tester/Podfile" }}
@@ -317,11 +318,24 @@ commands:
       - run:
           name: Get React Native version
           command: |
-            VERSION=$( grep '"version"' packages/react-native/package.json | cut -d '"' -f 4 | head -1)
+            VERSION=$(cat packages/react-native/package.json | jq -r '.version')
             # Save the react native version we are building in a file so we can use that file as part of the cache key.
             echo "$VERSION" > /tmp/react-native-version
             echo "React Native Version is $(cat /tmp/react-native-version)"
-            echo "Hermes commit is $(cat /tmp/hermes/hermesversion)"
+            HERMES_VERSION="$(cat /tmp/hermes/hermesversion)"
+            echo "Hermes commit is $HERMES_VERSION"
+
+  get_react_native_version_windows:
+    steps:
+      - run:
+          name: Get React Native version on Windows
+          command: |
+            $VERSION=cat packages/react-native/package.json | jq -r '.version'
+            # Save the react native version we are building in a file so we can use that file as part of the cache key.
+            echo "$VERSION" > /tmp/react-native-version
+            echo "React Native Version is $(cat /tmp/react-native-version)"
+            $HERMES_VERSION=cat C:\Users\circleci\project\tmp\hermes\hermesversion
+            echo "Hermes commit is $HERMES_VERSION"
 
   with_hermes_tarball_cache_span:
     parameters:
@@ -624,7 +638,7 @@ jobs:
       - run:
           name: Run Ruby Tests
           command: |
-            cd scripts
+            cd packages/react-native/scripts
             sh run_ruby_tests.sh
       - run_yarn
       - *attach_hermes_workspace
@@ -720,60 +734,6 @@ jobs:
       # Collect Results
       - report_bundle_size:
           platform: ios
-      - store_test_results:
-          path: ./reports/junit
-
-  # -------------------------
-  #    JOBS: Test Buck
-  # -------------------------
-  test_buck:
-    executor: reactnativeandroid
-    environment:
-      KOTLIN_HOME=packages/react-native/third-party/kotlin
-    steps:
-      - checkout
-      - setup_artifacts
-      - run_yarn
-
-      - run:
-          name: Download Dependencies Using Buck
-          command: ./scripts/buck/buck_fetch.sh
-
-      - run:
-          name: Build & Test React Native using Buck
-          command: |
-            buck build packages/react-native/ReactAndroid/src/main/java/com/facebook/react
-            buck build packages/react-native/ReactAndroid/src/main/java/com/facebook/react/shell
-
-      - run:
-          name: Run Tests - Android Unit Tests with Buck
-          command: buck test packages/react-native/ReactAndroid/src/test/... --config build.threads=$BUILD_THREADS --xml ./reports/buck/all-results-raw.xml
-
-      - run:
-          name: Build JavaScript Bundle for instrumentation tests
-          working_directory: ~/react-native/packages/react-native
-          command: node cli.js bundle --max-workers 2 --platform android --dev true --entry-file ReactAndroid/src/androidTest/js/TestBundle.js --bundle-output ReactAndroid/src/androidTest/assets/AndroidTestBundle.js
-
-      - run:
-          name: Build Tests - Android Instrumentation Tests with Buck
-          # Here, just build the instrumentation tests. There is a known issue with installing the APK to android-21+ emulator.
-          command: |
-            if [[ ! -e packages/react-native/ReactAndroid/src/androidTest/assets/AndroidTestBundle.js ]]; then
-              echo "JavaScript bundle missing, cannot run instrumentation tests. Verify Build JavaScript Bundle step completed successfully."; exit 1;
-            fi
-            source scripts/android-setup.sh && NO_BUCKD=1 scripts/retry3 timeout 300 buck build packages/react-native/ReactAndroid/src/androidTest/buck-runner:instrumentation-tests --config build.threads=$BUILD_THREADS
-
-      - run:
-          name: Collect Test Results
-          command: |
-            find . -type f -regex ".*/build/test-results/debug/.*xml" -exec cp {} ./reports/build/ \;
-            find . -type f -regex ".*/outputs/androidTest-results/connected/.*xml" -exec cp {} ./reports/outputs/ \;
-            find . -type f -regex ".*/buck-out/gen/packages/react-native/ReactAndroid/src/test/.*/.*xml" -exec cp {} ./reports/buck/ \;
-            if [ -f ~/react-native/reports/buck/all-results-raw.xml ]; then
-              ~/react-native/scripts/circleci/buckToJunit/buckToJunit.sh ~/react-native/reports/buck/all-results-raw.xml ~/react-native/reports/junit/results.xml
-            fi
-          when: always
-
       - store_test_results:
           path: ./reports/junit
 
@@ -1090,9 +1050,15 @@ jobs:
           name: Enable Yarn with corepack
           command: corepack enable
 
+      # it looks like that, last week, envinfo released version 7.9.0 which does not works
+      # with Windows. I have opened an issue here: https://github.com/tabrindle/envinfo/issues/238
+      # TODO: T156811874 - Revert this to npx envinfo@latest when the issue is addressed
       - run:
           name: Display Environment info
-          command: npx envinfo@latest
+          command: |
+            npm install -g envinfo
+            envinfo -v
+            envinfo
 
       - restore_cache:
           keys:
@@ -1176,7 +1142,7 @@ jobs:
       - image: debian:11
     environment:
       - HERMES_WS_DIR: *hermes_workspace_root
-      - HERMES_VERSION_FILE: "sdks/.hermesversion"
+      - HERMES_VERSION_FILE: "packages/react-native/sdks/.hermesversion"
       - BUILD_FROM_SOURCE: true
     steps:
       - run:
@@ -1195,8 +1161,10 @@ jobs:
             mkdir -p "/tmp/hermes" "/tmp/hermes/download" "/tmp/hermes/hermes"
 
             if [ -f "$HERMES_VERSION_FILE" ]; then
+              echo "Hermes version file found. Using the latest commit"
               cat $HERMES_VERSION_FILE > /tmp/hermes/hermesversion
             else
+              echo "No hermes version file found. Using the latest commit"
               HERMES_TAG_SHA=$(git ls-remote https://github.com/facebook/hermes main | cut -f 1 | tr -d '[:space:]')
               echo $HERMES_TAG_SHA > /tmp/hermes/hermesversion
             fi
@@ -1228,17 +1196,18 @@ jobs:
       - image: debian:bullseye
     # [macOS] Change resource_class to large as we're on the free CircleCI plan
     resource_class: "large"
-    working_directory: /root
     steps:
+      - checkout_code_with_cache
       - run:
           name: Install dependencies
           command: |
             apt update
             apt install -y git openssh-client cmake build-essential \
-                libreadline-dev libicu-dev zip python3
+                libreadline-dev libicu-dev jq zip python3
       - *attach_hermes_workspace
+      - get_react_native_version
       - restore_cache:
-          key: *hermes_workspace_cache_key
+          key: *hermes_linux_cache_key
       - run:
           name: Set up workspace
           command: |
@@ -1257,7 +1226,7 @@ jobs:
               cp /tmp/hermes/build/bin/hermesc /tmp/hermes/linux64-bin/.
             fi
       - save_cache:
-          key: *hermes_workspace_cache_key
+          key: *hermes_linux_cache_key
           paths:
             - /tmp/hermes/linux64-bin/
             - /tmp/hermes/hermes/destroot/
@@ -1378,7 +1347,9 @@ jobs:
       - MSBUILD_DIR: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin'
       - CMAKE_DIR: 'C:\Program Files\CMake\bin'
     steps:
+      - checkout_code_with_cache
       - *attach_hermes_workspace
+      - get_react_native_version_windows
       - restore_cache:
           key: *hermes_windows_cache_key
       - run:
@@ -1595,6 +1566,19 @@ jobs:
                     -d "{\"event_type\": \"publish\", \"client_payload\": { \"version\": \"${CIRCLE_TAG:1}\" }}"
       # END: Stable releases
 
+  poll_maven:
+    docker:
+      - image: cimg/node:current
+    resource_class: small
+    steps:
+      - checkout_code_with_cache
+      - run_yarn
+      - run:
+          name: Poll Maven for Artifacts
+          command: |
+            node scripts/circleci/poll-maven.js
+
+
   # -------------------------
   #    JOBS: Nightly
   # -------------------------
@@ -1702,7 +1686,6 @@ workflows:
       #         jsengine: ["Hermes", "JSC"]
       #         flavor: ["Debug", "Release"]
       # macOS]
-      - test_buck
       - test_ios_template:
           requires:
             - build_npm_package
@@ -1938,6 +1921,9 @@ workflows:
             - build_hermesc_linux
             - build_hermes_macos
             - build_hermesc_windows
+      - poll_maven:
+          requires:
+            -  build_and_publish_npm_package
 
   package_and_publish_release_dryrun:
     when:
