@@ -335,6 +335,10 @@ static void RCTSendScrollEventForNativeAnimations_DEPRECATED(RCTUIScrollView *sc
     scrollView.keyboardDismissMode = RCTUIKeyboardDismissModeFromProps(newScrollViewProps);
 #endif // [macOS] [visionOS]
   }
+  
+#if TARGET_OS_OSX // [macOS
+  MAP_SCROLL_VIEW_PROP(inverted);
+#endif // macOS]
 
   [super updateProps:props oldProps:oldProps];
 }
