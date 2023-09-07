@@ -64,6 +64,13 @@
   return self;
 }
 
+#if TARGET_OS_OSX // [macOS
+- (BOOL)isFlipped
+{
+  return !self.inverted;
+}
+#endif // macos]
+
 - (void)preserveContentOffsetWithBlock:(void (^)())block
 {
   if (!block) {
