@@ -54,6 +54,8 @@ export namespace AppRegistry {
     provider: WrapperComponentProvider,
   ): void;
 
+  export function enableArchitectureIndicator(enabled: boolean): void;
+
   export function registerConfig(config: AppConfig[]): void;
 
   export function registerComponent(
