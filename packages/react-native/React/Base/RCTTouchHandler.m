@@ -709,6 +709,13 @@ static BOOL RCTAnyTouchesChanged(NSSet *touches) // [macOS]
     return touch.eventNumber == event.eventNumber;
   }];
   if (index == NSNotFound) {
+    // A contextual menu click would generate a mouse up with a diffrent event
+    // and leave a touchable/pressable session open. This would cause touch end
+    // events from a modal window to end the touchable/pressable session and
+    // potentially trigger an onPress event. Hence the need to reset and cancel
+    // that session when a mouse up event was detected outside the touch handler
+    // view bounds.
+    [self reset];
     return;
   }
 
