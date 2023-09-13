@@ -783,6 +783,7 @@ BOOL RCTUIViewSetClipsToBounds(RCTPlatformView *view)
 // RCTUIImageView
 
 @implementation RCTUIImageView {
+  UIImage *_image;
   CALayer *_tintingLayer;
 }
 
@@ -804,6 +805,17 @@ BOOL RCTUIViewSetClipsToBounds(RCTPlatformView *view)
 - (void)setClipsToBounds:(BOOL)clipsToBounds
 {
   [[self layer] setMasksToBounds:clipsToBounds];
+}
+
+- (UIImage *)image
+{
+  return _image;
+}
+
+- (void)setImage:(UIImage *)image
+{
+  _image = image;
+  [self updateLayer];
 }
 
 - (void)setContentMode:(UIViewContentMode)contentMode
@@ -831,40 +843,43 @@ BOOL RCTUIViewSetClipsToBounds(RCTPlatformView *view)
     default:
       break;
   }
+  
+  [self updateLayer];
 }
 
-- (UIImage *)image
+- (void)setTintColor:(RCTUIColor *)tintColor
 {
-  return [[self layer] contents];
+  _tintColor = tintColor;
+  [self updateLayer];
 }
 
-- (void)setImage:(UIImage *)image
+- (void)updateLayer
 {
   CALayer *layer = [self layer];
   
-  if ([layer contents] != image || [layer backgroundColor] != nil) {
-    if (_tintColor) {
-      if (!_tintingLayer) {
-        _tintingLayer = [CALayer new];
-        [_tintingLayer setFrame:self.bounds];
-        [_tintingLayer setAutoresizingMask:kCALayerWidthSizable | kCALayerHeightSizable];
-        [_tintingLayer setZPosition:1.0];
-        CIFilter *sourceInCompositingFilter = [CIFilter filterWithName:@"CISourceInCompositing"];
-        [sourceInCompositingFilter setDefaults];
-        [_tintingLayer setCompositingFilter:sourceInCompositingFilter];
-        [layer addSublayer:_tintingLayer];
-      }
-      [_tintingLayer setBackgroundColor:_tintColor.CGColor];
-    } else {
-      [_tintingLayer removeFromSuperlayer];
-      _tintingLayer = nil;
+  if (_tintColor) {
+    if (!_tintingLayer) {
+      _tintingLayer = [CALayer new];
+      [_tintingLayer setFrame:self.bounds];
+      [_tintingLayer setAutoresizingMask:kCALayerWidthSizable | kCALayerHeightSizable];
+      [_tintingLayer setZPosition:1.0];
+      CIFilter *sourceInCompositingFilter = [CIFilter filterWithName:@"CISourceInCompositing"];
+      [sourceInCompositingFilter setDefaults];
+      [_tintingLayer setCompositingFilter:sourceInCompositingFilter];
+      [layer addSublayer:_tintingLayer];
     }
-    
-    if (image != nil && [image resizingMode] == NSImageResizingModeTile) {
+    [_tintingLayer setBackgroundColor:_tintColor.CGColor];
+  } else {
+    [_tintingLayer removeFromSuperlayer];
+    _tintingLayer = nil;
+  }
+
+  if ([layer contents] != _image || [layer backgroundColor] != nil) {
+    if (_image != nil && [_image resizingMode] == NSImageResizingModeTile) {
       [layer setContents:nil];
-      [layer setBackgroundColor:[NSColor colorWithPatternImage:image].CGColor];
+      [layer setBackgroundColor:[NSColor colorWithPatternImage:_image].CGColor];
     } else {
-      [layer setContents:image];
+      [layer setContents:_image];
       [layer setBackgroundColor:nil];
     }
   }
