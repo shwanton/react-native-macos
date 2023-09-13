@@ -651,6 +651,11 @@ static RCTBorderStyle RCTBorderStyleFromBorderStyle(BorderStyle borderStyle)
     return;
   }
 
+#if TARGET_OS_OSX // [macOS
+  // clipsToBounds is stubbed out on macOS because it's not part of NSView
+  layer.masksToBounds = self.clipsToBounds;
+#endif // macOS]
+
   const auto borderMetrics = _props->resolveBorderMetrics(_layoutMetrics);
 
   // Stage 1. Shadow Path
