@@ -18,6 +18,10 @@
 #import "RCTRootContentView.h"
 #import "RCTRootViewDelegate.h"
 #import "RCTSurface.h"
+#import "RCTUIManager.h"
+#import "RCTUIManagerUtils.h"
+#import "RCTSurfaceRootShadowView.h"
+
 #import "UIView+React.h"
 
 static RCTSurfaceSizeMeasureMode convertToSurfaceSizeMeasureMode(RCTRootViewSizeFlexibility sizeFlexibility)
@@ -145,14 +149,49 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
   return _reactViewController ?: [super reactViewController];
 }
 
+// [macos
 - (void)setMinimumSize:(CGSize)minimumSize
 {
-  if (!CGSizeEqualToSize(minimumSize, CGSizeZero)) {
-    // TODO (T93859532): Investigate implementation for this.
-    RCTLogError(@"RCTSurfaceHostingProxyRootView does not support changing the deprecated minimumSize");
+  if (CGSizeEqualToSize(_minimumSize, minimumSize)) {
+    return;
   }
-  _minimumSize = CGSizeZero;
+
+  _minimumSize = minimumSize;
+  __block NSNumber *tag = self.reactTag;
+  __weak RCTSurfaceHostingProxyRootView* weakSelf = self;
+  RCTExecuteOnUIManagerQueue(^{
+    __strong RCTSurfaceHostingProxyRootView* strongSelf = weakSelf;
+    if (strongSelf && strongSelf->_bridge.isValid) {
+      RCTSurfaceRootShadowView *shadowView = (RCTSurfaceRootShadowView *)[strongSelf->_bridge.uiManager shadowViewForReactTag:tag];
+      [shadowView setMinimumSize:minimumSize];
+    }
+  });
 }
+
+- (void)setIntrinsicContentSize:(CGSize)intrinsicContentSize
+{
+  BOOL oldSizeHasAZeroDimension = _intrinsicContentSize.height == 0 || _intrinsicContentSize.width == 0;
+  BOOL newSizeHasAZeroDimension = intrinsicContentSize.height == 0 || intrinsicContentSize.width == 0;
+  BOOL bothSizesHaveAZeroDimension = oldSizeHasAZeroDimension && newSizeHasAZeroDimension;
+
+  BOOL sizesAreEqual = CGSizeEqualToSize(_intrinsicContentSize, intrinsicContentSize);
+
+  _intrinsicContentSize = intrinsicContentSize;
+
+  [self invalidateIntrinsicContentSize];
+  [self.superview setNeedsLayout:YES];
+
+  // Don't notify the delegate if the content remains invisible or its size has not changed
+  if (bothSizesHaveAZeroDimension || sizesAreEqual) {
+    return;
+  }
+
+  [self invalidateIntrinsicContentSize];
+  [self.superview setNeedsLayout:YES];
+
+  [_delegate rootViewDidChangeIntrinsicSize:(RCTRootView *)self];
+}
+// macos]
 
 #pragma mark unsupported
 
