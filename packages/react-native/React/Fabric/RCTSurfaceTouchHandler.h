@@ -23,6 +23,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, assign) CGPoint viewOriginOffset;
 
+#if TARGET_OS_OSX // [macOS
++ (instancetype)surfaceTouchHandlerForEvent:(NSEvent *)event;
++ (instancetype)surfaceTouchHandlerForView:(NSView *)view;
+
+- (void)cancelTouchWithEvent:(NSEvent *)event;
+#endif // macOS]
+
 @end
 
 NS_ASSUME_NONNULL_END
