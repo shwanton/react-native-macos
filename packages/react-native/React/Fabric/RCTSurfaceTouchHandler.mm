@@ -12,6 +12,10 @@
 #import <React/RCTViewComponentView.h>
 #import <React/RCTUIKit.h>
 
+#if TARGET_OS_OSX // [macOS
+#import "React/RCTSurfaceHostingView.h"
+#endif // macOS]
+
 #import "RCTConversions.h"
 #import "RCTSurfacePointerHandler.h"
 #import "RCTTouchableComponentViewProtocol.h"
@@ -585,5 +589,41 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithTarget : (id)target action : (SEL)act
   [self setEnabled:NO];
   [self setEnabled:YES];
 }
+
+#if TARGET_OS_OSX // [macOS
++ (instancetype)surfaceTouchHandlerForEvent:(NSEvent *)event {
+  RCTPlatformView *hitView = [event.window.contentView.superview hitTest:event.locationInWindow];
+  return [self surfaceTouchHandlerForView:hitView];
+}
+
++ (instancetype)surfaceTouchHandlerForView:(RCTPlatformView *)view {
+  if ([view isKindOfClass:[RCTSurfaceHostingView class]]) {
+    // The RCTSurfaceTouchHandler is attached to surface's view.
+    view = (RCTPlatformView *)(((RCTSurfaceHostingView *)view).surface.view);
+  }
+
+  while (view) {
+    for (NSGestureRecognizer *gestureRecognizer in view.gestureRecognizers) {
+      if ([gestureRecognizer isKindOfClass:[self class]]) {
+        return (RCTSurfaceTouchHandler *)gestureRecognizer;
+      }
+    }
+
+    view = view.superview;
+  }
+
+  return nil;
+}
+
+- (void)cancelTouchWithEvent:(NSEvent *)event
+{
+  NSSet *touches = [NSSet setWithObject:event];
+  [self _updateTouches:touches withEvent:event];
+  [self _dispatchActiveTouches:[self _activeTouchesFromTouches:touches] eventType:RCTTouchEventTypeTouchCancel];
+  [self _unregisterTouches:touches];
+
+  self.state = NSGestureRecognizerStateCancelled;
+}
+#endif // macOS]
 
 @end
