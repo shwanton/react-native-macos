@@ -41,8 +41,10 @@ RCT_NOT_IMPLEMENTED(-(nullable instancetype)initWithCoder : (NSCoder *)coder)
     _stage = surface.stage;
     [self _updateViews];
 
+#if !TARGET_OS_OSX // [macOS]
     // For backward compatibility with RCTRootView, set a color here instead of transparent (OS default).
-    self.backgroundColor = [RCTUIColor whiteColor]; // [macOS]
+    self.backgroundColor = [RCTUIColor whiteColor];
+#endif
   }
 
   return self;
