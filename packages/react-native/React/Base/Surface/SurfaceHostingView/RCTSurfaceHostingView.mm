@@ -135,6 +135,15 @@ RCT_NOT_IMPLEMENTED(-(nullable instancetype)initWithCoder : (NSCoder *)coder)
   [self _invalidateLayout];
 }
 
+#pragma mark - NSView
+
+#if TARGET_OS_OSX // [macOS
+- (void)viewDidEndLiveResize {
+  [super viewDidEndLiveResize];
+  [self setNeedsLayout];
+}
+#endif // macOS]
+
 #pragma mark - isActivityIndicatorViewVisible
 
 - (void)setIsActivityIndicatorViewVisible:(BOOL)visible
