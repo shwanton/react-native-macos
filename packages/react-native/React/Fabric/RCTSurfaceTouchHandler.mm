@@ -624,6 +624,15 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithTarget : (id)target action : (SEL)act
 
   self.state = NSGestureRecognizerStateCancelled;
 }
+
+// (Note this is not an issue for left clicks: context menu on left clicks is only shown
+// on LeftMouseUp)
+- (void)willShowMenuWithEvent:(NSEvent *)event
+{
+  if (event.type == NSEventTypeRightMouseDown) {
+    [self cancelTouchWithEvent:event];
+  }
+}
 #endif // macOS]
 
 @end
