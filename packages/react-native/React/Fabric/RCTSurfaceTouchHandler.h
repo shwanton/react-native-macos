@@ -27,6 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)surfaceTouchHandlerForEvent:(NSEvent *)event;
 + (instancetype)surfaceTouchHandlerForView:(NSView *)view;
 
+- (void)willShowMenuWithEvent:(NSEvent *)event;
 - (void)cancelTouchWithEvent:(NSEvent *)event;
 #endif // macOS]
 
