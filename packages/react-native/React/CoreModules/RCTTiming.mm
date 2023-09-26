@@ -128,6 +128,15 @@ RCT_EXPORT_MODULE()
   _paused = YES;
   _timers = [NSMutableDictionary new];
   _inBackground = NO;
+  RCTExecuteOnMainQueue(^{
+#if !TARGET_OS_OSX // [macOS]
+    if (!self->_inBackground && [RCTSharedApplication() applicationState] == UIApplicationStateBackground) {
+#else // [macOS
+    if (!self->_inBackground && ![RCTSharedApplication() isHidden]) {
+#endif
+      [self appDidMoveToBackground];
+    }
+  });
 
 #if !TARGET_OS_OSX // [macOS]
   for (NSString *name in @[
