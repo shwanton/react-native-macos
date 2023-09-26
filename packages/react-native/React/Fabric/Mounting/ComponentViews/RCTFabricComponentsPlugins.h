@@ -36,6 +36,9 @@ Class<RCTComponentViewProtocol> RCTParagraphCls(void) __attribute__((used));
 Class<RCTComponentViewProtocol> RCTPullToRefreshViewCls(void) __attribute__((used));
 Class<RCTComponentViewProtocol> RCTSafeAreaViewCls(void) __attribute__((used));
 Class<RCTComponentViewProtocol> RCTScrollViewCls(void) __attribute__((used));
+#if TARGET_OS_OSX // [macOS
+Class<RCTComponentViewProtocol> RCTScrollContentViewCls(void) __attribute__((used));
+#endif // macOS]
 Class<RCTComponentViewProtocol> RCTSwitchCls(void) __attribute__((used));
 Class<RCTComponentViewProtocol> RCTTextInputCls(void) __attribute__((used));
 Class<RCTComponentViewProtocol> RCTUnimplementedNativeViewCls(void) __attribute__((used));

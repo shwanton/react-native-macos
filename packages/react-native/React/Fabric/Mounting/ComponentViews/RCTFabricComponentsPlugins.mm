@@ -24,6 +24,9 @@ Class<RCTComponentViewProtocol> RCTFabricComponentsProvider(const char *name) {
     {"PullToRefreshView", RCTPullToRefreshViewCls},
     {"SafeAreaView", RCTSafeAreaViewCls},
     {"ScrollView", RCTScrollViewCls},
+#if TARGET_OS_OSX // [macOS
+    {"ScrollContentView", RCTScrollContentViewCls},
+#endif // macOS]
     {"Switch", RCTSwitchCls},
     {"TextInput", RCTTextInputCls},
     {"UnimplementedNativeView", RCTUnimplementedNativeViewCls},
