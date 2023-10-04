@@ -15,6 +15,10 @@
 #import <react/utils/ManagedObjectWrapper.h>
 #import "RCTLegacyViewManagerInteropCoordinatorAdapter.h"
 
+#if TARGET_OS_OSX // [macOS
+#import <React/RCTView.h>
+#endif // macOS]
+
 using namespace facebook::react;
 
 static NSString *const kRCTLegacyInteropChildComponentKey = @"childComponentView";
