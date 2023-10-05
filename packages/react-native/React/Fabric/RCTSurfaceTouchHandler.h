@@ -29,6 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)willShowMenuWithEvent:(NSEvent *)event;
 - (void)cancelTouchWithEvent:(NSEvent *)event;
+- (void)reset;
 #endif // macOS]
 
 @end
