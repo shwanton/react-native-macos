@@ -147,9 +147,11 @@ static NSDictionary *onLoadParamsForSource(RCTImageSource *source)
 #endif // macOS]
     _imageView = [RCTUIImageViewAnimated new];
     _imageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    #if TARGET_OS_OSX
-      [_imageView unregisterDraggedTypes];
-    #endif
+#if TARGET_OS_OSX
+    _resizeMode = RCTResizeModeCover;
+    _imageView.contentMode = (UIViewContentMode)RCTResizeModeCover;
+    [_imageView unregisterDraggedTypes];
+#endif
     [self addSubview:_imageView];
 
 #if !TARGET_OS_OSX // [macOS]
@@ -198,10 +200,6 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
 #else // [macOS
     image.capInsets = _capInsets;
     image.resizingMode = NSImageResizingModeTile;
-  } else if (_resizeMode == RCTResizeModeCover) {
-    if (!NSEqualSizes(self.bounds.size, NSZeroSize)) {
-      image = RCTFillImagePreservingAspectRatio(image, self.bounds.size, self.window.backingScaleFactor ?: 1.0);
-    }
 #endif // macOS]
   } else if (!UIEdgeInsetsEqualToEdgeInsets(UIEdgeInsetsZero, _capInsets)) {
     // Applying capInsets of 0 will switch the "resizingMode" of the image to "tile" which is undesired
@@ -287,21 +285,9 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
     if (_resizeMode == RCTResizeModeRepeat) {
       // Repeat resize mode is handled by the UIImage. Use scale to fill
       // so the repeated image fills the UIImageView.
-#if !TARGET_OS_OSX // [macOS]
       _imageView.contentMode = UIViewContentModeScaleToFill;
-#else // [macOS
-      _imageView.imageScaling = NSImageScaleAxesIndependently;
-#endif // macOS]
     } else {
-#if !TARGET_OS_OSX // [macOS]
       _imageView.contentMode = (UIViewContentMode)resizeMode;
-#else // [macOS
-      // This relies on having previously resampled the image to a size that exceeds the image view.
-      if (resizeMode == RCTResizeModeCover) {
-        resizeMode = RCTResizeModeCenter;
-      }
-      _imageView.imageScaling = (NSImageScaling)resizeMode;
-#endif // macOS]
     }
 
     if ([self shouldReloadImageSourceAfterResize]) {
