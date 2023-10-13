@@ -386,19 +386,27 @@ static void RCTSendScrollEventForNativeAnimations_DEPRECATED(RCTUIScrollView *sc
 
 - (void)mountChildComponentView:(RCTUIView<RCTComponentViewProtocol> *)childComponentView index:(NSInteger)index // [macOS]
 {
+#if !TARGET_OS_OSX // [macOS]
   [_containerView insertSubview:childComponentView atIndex:index];
   if (![childComponentView conformsToProtocol:@protocol(RCTCustomPullToRefreshViewProtocol)]) {
     _contentView = childComponentView;
   }
+#else // [macOS
+  [_scrollView setDocumentView:childComponentView];
+#endif // macOS]
 }
 
 - (void)unmountChildComponentView:(RCTUIView<RCTComponentViewProtocol> *)childComponentView index:(NSInteger)index // [macOS]
 {
+#if !TARGET_OS_OSX // [macOS]
   [childComponentView removeFromSuperview];
   if (![childComponentView conformsToProtocol:@protocol(RCTCustomPullToRefreshViewProtocol)] &&
       _contentView == childComponentView) {
     _contentView = nil;
   }
+#else // [macOS
+  [_scrollView setDocumentView:_containerView];
+#endif // macOS]
 }
 
 /*
