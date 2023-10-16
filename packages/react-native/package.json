@@ -1,6 +1,6 @@
 {
   "name": "react-native-macos",
-  "version": "0.72.1",
+  "version": "0.72.2",
   "bin": "./cli.js",
   "description": "React Native for macOS",
   "license": "MIT",
