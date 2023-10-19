@@ -257,11 +257,6 @@ RCT_NOT_IMPLEMENTED(-(nullable instancetype)initWithCoder : (NSCoder *)coder)
   }
 
   if (menu) {
-#ifdef RN_FABRIC_ENABLED
-    if ([self isKindOfClass:[RCTFabricSurfaceHostingProxyRootView class]]) {
-      [[RCTSurfaceTouchHandler surfaceTouchHandlerForView:self] willShowMenuWithEvent:event];
-    }
-#endif
     if ([self isKindOfClass:[RCTSurfaceHostingView class]]) {
       [[RCTTouchHandler touchHandlerForView:self] willShowMenuWithEvent:event];
     }
