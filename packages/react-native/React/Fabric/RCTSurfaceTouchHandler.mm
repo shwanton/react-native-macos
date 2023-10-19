@@ -22,6 +22,43 @@
 
 using namespace facebook::react;
 
+#if TARGET_OS_OSX // [macOS
+@interface NSApplication (RCTSurfaceTouchHandlerOverride)
+- (NSEvent*)override_surface_nextEventMatchingMask:(NSEventMask)mask
+                                 untilDate:(NSDate*)expiration
+                                    inMode:(NSRunLoopMode)mode
+                                   dequeue:(BOOL)dequeue;
+@end
+
+@implementation NSApplication (RCTSurfaceTouchHandlerOverride)
+
++ (void)load
+{
+  RCTSwapInstanceMethods(self, @selector(nextEventMatchingMask:untilDate:inMode:dequeue:), @selector(override_surface_nextEventMatchingMask:untilDate:inMode:dequeue:));
+}
+
+- (NSEvent*)override_surface_nextEventMatchingMask:(NSEventMask)mask
+                                 untilDate:(NSDate*)expiration
+                                    inMode:(NSRunLoopMode)mode
+                                   dequeue:(BOOL)dequeue
+{
+  NSEvent* event = [self override_surface_nextEventMatchingMask:mask
+                                              untilDate:expiration
+                                                 inMode:mode
+                                                dequeue:dequeue];
+  if (dequeue && (event.type == NSEventTypeLeftMouseUp || event.type == NSEventTypeRightMouseUp || event.type == NSEventTypeOtherMouseUp)) {
+    RCTSurfaceTouchHandler *targetSurfaceTouchHandler = [RCTSurfaceTouchHandler surfaceTouchHandlerForEvent:event];
+    if (!targetSurfaceTouchHandler) {
+      [RCTSurfaceTouchHandler notifyOutsideViewMouseUp:event];
+    }
+  }
+
+  return event;
+}
+
+@end
+#endif // macOS]
+
 typedef NS_ENUM(NSInteger, RCTTouchEventType) {
   RCTTouchEventTypeTouchStart,
   RCTTouchEventTypeTouchMove,
