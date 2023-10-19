@@ -615,6 +615,12 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithTarget : (id)target action : (SEL)act
   return nil;
 }
 
++ (void)notifyOutsideViewMouseUp:(NSEvent *)event {
+  [[NSNotificationCenter defaultCenter] postNotificationName:RCTSurfaceTouchHandlerOutsideViewMouseUpNotification
+                                                      object:self
+                                                    userInfo:@{@"event": event}];
+}
+
 - (void)cancelTouchWithEvent:(NSEvent *)event
 {
   NSSet *touches = [NSSet setWithObject:event];
