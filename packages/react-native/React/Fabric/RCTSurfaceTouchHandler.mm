@@ -256,6 +256,9 @@ struct PointerHasher {
     self.delaysTouchesBegan = NO; // This is default value.
     self.delaysTouchesEnded = NO;
 #else // [macOS
+    self.delaysPrimaryMouseButtonEvents = NO; // default is NO.
+    self.delaysSecondaryMouseButtonEvents = NO; // default is NO.
+    self.delaysOtherMouseButtonEvents = NO; // default is NO.
     [[NSNotificationCenter defaultCenter] addObserver:self
                                               selector:@selector(endOutsideViewMouseUp:)
                                                   name:RCTSurfaceTouchHandlerOutsideViewMouseUpNotification
