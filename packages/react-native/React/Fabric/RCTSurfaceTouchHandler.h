@@ -9,6 +9,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if TARGET_OS_OSX // [macOS
+static NSString *const RCTSurfaceTouchHandlerOutsideViewMouseUpNotification = @"RCTSurfaceTouchHandlerOutsideViewMouseUpNotification";
+#endif // macOS]
+
 @interface RCTSurfaceTouchHandler : UIGestureRecognizer
 
 /*
@@ -26,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 #if TARGET_OS_OSX // [macOS
 + (instancetype)surfaceTouchHandlerForEvent:(NSEvent *)event;
 + (instancetype)surfaceTouchHandlerForView:(NSView *)view;
++ (void)notifyOutsideViewMouseUp:(NSEvent *)event;
 
 - (void)willShowMenuWithEvent:(NSEvent *)event;
 - (void)cancelTouchWithEvent:(NSEvent *)event;
