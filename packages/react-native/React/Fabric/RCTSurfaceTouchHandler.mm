@@ -211,7 +211,12 @@ struct PointerHasher {
     self.cancelsTouchesInView = NO;
     self.delaysTouchesBegan = NO; // This is default value.
     self.delaysTouchesEnded = NO;
-#endif // [macOS]
+#else // [macOS
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                              selector:@selector(endOutsideViewMouseUp:)
+                                                  name:RCTSurfaceTouchHandlerOutsideViewMouseUpNotification
+                                                object:[RCTSurfaceTouchHandler class]];
+#endif // macOS]
 
     self.delegate = self;
 
@@ -224,6 +229,12 @@ struct PointerHasher {
 }
 
 RCT_NOT_IMPLEMENTED(-(instancetype)initWithTarget : (id)target action : (SEL)action)
+
+#if TARGET_OS_OSX // [macOS
+- (void)dealloc {
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+#endif // macOS]
 
 - (void)attachToView:(RCTUIView *)view // [macOS]
 {
@@ -619,6 +630,24 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithTarget : (id)target action : (SEL)act
   [[NSNotificationCenter defaultCenter] postNotificationName:RCTSurfaceTouchHandlerOutsideViewMouseUpNotification
                                                       object:self
                                                     userInfo:@{@"event": event}];
+}
+
+- (void)endOutsideViewMouseUp:(NSNotification *)notification {
+  NSEvent *event = notification.userInfo[@"event"];
+
+  auto iterator = _activeTouches.find(event.eventNumber);
+  if (iterator == _activeTouches.end()) {
+    // A contextual menu click would generate a mouse up with a diffrent event
+    // and leave a touchable/pressable session open. This would cause touch end
+    // events from a modal window to end the touchable/pressable session and
+    // potentially trigger an onPress event. Hence the need to reset and cancel
+    // that session when a mouse up event was detected outside the touch handler
+    // view bounds.
+    [self reset];
+    return;
+  }
+
+  [self cancelTouchWithEvent:event];
 }
 
 - (void)cancelTouchWithEvent:(NSEvent *)event
