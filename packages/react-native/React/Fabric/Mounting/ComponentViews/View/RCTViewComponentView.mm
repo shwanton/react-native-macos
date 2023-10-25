@@ -296,7 +296,17 @@ using namespace facebook::react;
        oldViewProps.transformOrigin != newViewProps.transformOrigin) &&
       ![_propKeysManagedByAnimated_DO_NOT_USE_THIS_IS_BROKEN containsObject:@"transform"]) {
     auto newTransform = newViewProps.resolveTransform(_layoutMetrics);
-    self.layer.transform = RCTCATransform3DFromTransformMatrix(newTransform);
+    CATransform3D transform = RCTCATransform3DFromTransformMatrix(newTransform);
+#if TARGET_OS_OSX // [macOS
+    CGPoint anchorPoint = self.layer.anchorPoint;
+    if (CGPointEqualToPoint(anchorPoint, CGPointZero) && !CATransform3DEqualToTransform(transform, CATransform3DIdentity)) {
+      // https://developer.apple.com/documentation/quartzcore/calayer/1410817-anchorpoint
+      // This compensates for the fact that layer.anchorPoint is {0, 0} instead of {0.5, 0.5} on macOS for some reason.
+      CATransform3D originAdjust = CATransform3DTranslate(CATransform3DIdentity, self.frame.size.width / 2, self.frame.size.height / 2, 0);
+      transform = CATransform3DConcat(CATransform3DConcat(CATransform3DInvert(originAdjust), transform), originAdjust);
+    }
+#endif // macOS]
+    self.layer.transform = transform;
     self.layer.allowsEdgeAntialiasing = newViewProps.transform != Transform::Identity();
   }
 
