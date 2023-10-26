@@ -24,6 +24,7 @@ using namespace facebook::react;
 
 #if TARGET_OS_OSX // [macOS
 @interface RCTSurfaceTouchHandler (Private)
+- (void)endFromEventTrackingLeftMouseUp:(NSEvent *)event;
 - (void)endFromEventTrackingRightMouseUp:(NSEvent *)event;
 @end
 
@@ -54,9 +55,13 @@ using namespace facebook::react;
     RCTSurfaceTouchHandler *targetSurfaceTouchHandler = [RCTSurfaceTouchHandler surfaceTouchHandlerForEvent:event];
     if (!targetSurfaceTouchHandler) {
       [RCTSurfaceTouchHandler notifyOutsideViewMouseUp:event];
-    } else if (event.type == NSEventTypeRightMouseUp && [mode isEqualTo:NSEventTrackingRunLoopMode]) {
+    } else if ([mode isEqualTo:NSEventTrackingRunLoopMode]) {
       // If the event is consumed by an event tracking loop, we won't get the mouse up event
-      [targetSurfaceTouchHandler endFromEventTrackingRightMouseUp:event];
+      if (event.type == NSEventTypeLeftMouseUp) {
+        [targetSurfaceTouchHandler endFromEventTrackingLeftMouseUp:event];
+      } else if (event.type == NSEventTypeRightMouseUp) {
+        [targetSurfaceTouchHandler endFromEventTrackingRightMouseUp:event];
+      }
     }
   }
 
@@ -691,6 +696,16 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithTarget : (id)target action : (SEL)act
     // that session when a mouse up event was detected outside the touch handler
     // view bounds.
     [self reset];
+    return;
+  }
+
+  [self cancelTouchWithEvent:event];
+}
+
+- (void)endFromEventTrackingLeftMouseUp:(NSEvent *)event
+{
+  auto iterator = _activeTouches.find(event.eventNumber);
+  if (iterator == _activeTouches.end()) {
     return;
   }
 
