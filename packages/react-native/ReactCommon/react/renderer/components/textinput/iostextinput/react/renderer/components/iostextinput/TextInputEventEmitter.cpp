@@ -167,4 +167,14 @@ void TextInputEventEmitter::dispatchTextInputContentSizeChangeEvent(
       priority);
 }
 
+#if TARGET_OS_OSX // [macOS
+void TextInputEventEmitter::onAutoCorrectChange(OnAutoCorrectChange event) const {
+  dispatchEvent("autoCorrectChange", [event=std::move(event)](jsi::Runtime &runtime) {
+    auto payload = jsi::Object(runtime);
+    payload.setProperty(runtime, "enabled", event.enabled);
+    return payload;
+  });
+}
+#endif // macOS]
+
 } // namespace facebook::react
