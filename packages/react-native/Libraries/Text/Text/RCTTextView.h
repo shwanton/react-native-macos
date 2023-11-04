@@ -12,7 +12,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface RCTTextView : RCTUIView // [macOS]
+@interface RCTTextView : RCTUIView <AccessibleLabelProtocol> // [macOS]
 
 - (instancetype)initWithEventDispatcher:(id<RCTEventDispatcherProtocol>)eventDispatcher; // [macOS]
 

@@ -25,7 +25,7 @@ extern const UIAccessibilityTraits SwitchAccessibilityTrait;
 
 @class RCTHandledKey; // [macOS]
 
-@interface RCTView : RCTUIView // [macOS]
+@interface RCTView : RCTUIView <AccessibleLabelProtocol> // [macOS]
 
 // [macOS
 - (instancetype)initWithEventDispatcher:(id<RCTEventDispatcherProtocol>)eventDispatcher;

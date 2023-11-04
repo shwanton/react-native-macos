@@ -137,12 +137,11 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)coder)
     // Pair the mouse down events with mouse up events so our _nativeTouches cache doesn't get stale
     if ([targetView isKindOfClass:[NSControl class]]) {
       _shouldSendMouseUpOnSystemBehalf = [(NSControl*)targetView isEnabled];
-    } else if ([targetView isKindOfClass:[NSText class]]) {
+    } 
+    else if ([targetView isKindOfClass:[NSText class]]) {
       _shouldSendMouseUpOnSystemBehalf = [(NSText*)targetView isSelectable];
     }
-    else if ([targetView.superview isKindOfClass:[RCTUITextField class]]) {
-      _shouldSendMouseUpOnSystemBehalf = [(RCTUITextField*)targetView.superview isSelectable];
-    } else {
+    else {
       _shouldSendMouseUpOnSystemBehalf = NO;
     }
     touchLocation = [targetView convertPoint:touchLocation fromView:self.view.superview];

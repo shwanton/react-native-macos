@@ -344,6 +344,15 @@
 }
 #endif // macOS]
 
+#pragma mark - AccessibilityLabelProtocol
+
+- (NSString *)accessibleLabel
+{
+  // on macOS VoiceOver a text element will always have its accessibilityValue read, but will only read it's accessibilityLabel if it's value is set.
+  // the macOS RCTTextView accessibilityValue will return its accessibilityLabel if set otherwise return its text.
+  return self.accessibilityValue;
+}
+
 #pragma mark - Context Menu
 
 #if !TARGET_OS_OSX // [macOS]
