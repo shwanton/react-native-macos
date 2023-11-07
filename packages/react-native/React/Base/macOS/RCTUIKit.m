@@ -350,7 +350,11 @@ static RCTUIView *RCTUIViewCommonInit(RCTUIView *self)
 {
   if (_backgroundColor) {
     [_backgroundColor set];
-    NSRectFill(rect);
+    // On macOS 14, views inside NSClipView can get a dirty rect that stretches
+    // outside the bounds of the view probably because of the changed behavior
+    // of visibleRect. To avoid weird background filling we clip to the bounds.
+    NSRect clippedToBoundsRect = NSIntersectionRect(self.bounds, rect);
+    NSRectFill(clippedToBoundsRect);
   }
   [super drawRect:rect];
 }
