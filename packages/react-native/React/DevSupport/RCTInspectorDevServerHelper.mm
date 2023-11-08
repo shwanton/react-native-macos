@@ -67,7 +67,7 @@ static NSMutableDictionary<NSString *, RCTInspectorPackagerConnection *> *socket
 
 static void sendEventToAllConnections(NSString *event)
 {
-  @synchronized (socketConnections) {
+  @synchronized (socketConnections) { // [macOS]
     for (NSString *socketId in socketConnections) {
       [socketConnections[socketId] sendEventToAllConnections:event];
     }
@@ -107,7 +107,7 @@ static void sendEventToAllConnections(NSString *event)
   // Note, using a static dictionary isn't really the greatest design, but
   // the packager connection does the same thing, so it's at least consistent.
   // This is a static map that holds different inspector clients per the inspectorURL
-  @synchronized (socketConnections) {
+  @synchronized (socketConnections) { // [macOS]
     if (socketConnections == nil) {
       socketConnections = [NSMutableDictionary new];
     }
@@ -123,7 +123,7 @@ static void sendEventToAllConnections(NSString *event)
 
   RCTInspectorPackagerConnection *connection;
 
-  @synchronized (socketConnections) {
+  @synchronized (socketConnections) { // [macOS]
     connection = socketConnections[key];
     if (!connection || !connection.isConnected) {
       connection = [[RCTInspectorPackagerConnection alloc] initWithURL:inspectorURL];
