@@ -187,6 +187,17 @@ static void RCTSendScrollEventForNativeAnimations_DEPRECATED(RCTUIScrollView *sc
                         object:_scrollView.contentView]; // NSClipView
   }
 }
+
+- (void)setContentInset:(UIEdgeInsets)contentInset
+{
+  if (UIEdgeInsetsEqualToEdgeInsets(contentInset, _contentInset)) {
+    return;
+  }
+
+  _contentInset = contentInset;
+  _scrollView.contentInset = contentInset;
+  _scrollView.scrollIndicatorInsets = contentInset;
+}
 #endif // macOS]
 
 #if !TARGET_OS_OSX // [macOS]
@@ -303,7 +314,11 @@ static void RCTSendScrollEventForNativeAnimations_DEPRECATED(RCTUIScrollView *sc
   MAP_SCROLL_VIEW_PROP(zoomScale);
 
   if (oldScrollViewProps.contentInset != newScrollViewProps.contentInset) {
+#if !TARGET_OS_OSX // [macOS]
     _scrollView.contentInset = RCTUIEdgeInsetsFromEdgeInsets(newScrollViewProps.contentInset);
+#else // [macOS
+    self.contentInset = RCTUIEdgeInsetsFromEdgeInsets(newScrollViewProps.contentInset);
+#endif // macOS]
   }
 
   RCTEnhancedScrollView *scrollView = (RCTEnhancedScrollView *)_scrollView;
