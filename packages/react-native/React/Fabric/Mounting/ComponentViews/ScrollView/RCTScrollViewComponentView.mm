@@ -168,6 +168,27 @@ static void RCTSendScrollEventForNativeAnimations_DEPRECATED(RCTUIScrollView *sc
 #endif // [macOS]
 }
 
+#if TARGET_OS_OSX // [macOS
+- (void)viewDidMoveToWindow
+{
+  [super viewDidMoveToWindow];
+
+  NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+  if (self.window == nil) {
+    // Unregister scrollview's clipview bounds change notifications
+    [defaultCenter removeObserver:self
+                             name:NSViewBoundsDidChangeNotification
+                           object:_scrollView.contentView];
+  } else {
+    // Register for scrollview's clipview bounds change notifications so we can track scrolling
+    [defaultCenter addObserver:self
+                      selector:@selector(scrollViewDocumentViewBoundsDidChange:)
+                          name:NSViewBoundsDidChangeNotification
+                        object:_scrollView.contentView]; // NSClipView
+  }
+}
+#endif // macOS]
+
 #if !TARGET_OS_OSX // [macOS]
 - (RCTGenericDelegateSplitter<id<UIScrollViewDelegate>> *)scrollViewDelegateSplitter
 {
@@ -481,6 +502,15 @@ static void RCTSendScrollEventForNativeAnimations_DEPRECATED(RCTUIScrollView *sc
   _firstVisibleView = nil;
   [super prepareForRecycle];
 }
+
+#if TARGET_OS_OSX // [macOS
+#pragma mark - NSScrollView scroll notification
+
+- (void)scrollViewDocumentViewBoundsDidChange:(__unused NSNotification *)notification
+{
+  [self scrollViewDidScroll:_scrollView];
+}
+#endif // macOS]
 
 #pragma mark - UIScrollViewDelegate
 
