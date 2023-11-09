@@ -58,7 +58,11 @@
       [weakSelf setPrivateDelegate:delegate];
     }];
     [_delegateSplitter addDelegate:self];
-#endif // [macOS]
+#else // [macOS
+    self.hasHorizontalScroller = YES;
+    self.hasVerticalScroller = YES;
+    self.autohidesScrollers = YES;
+#endif // macOS]
   }
 
   return self;
