@@ -59,6 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated;
 - (void)zoomToRect:(CGRect)rect animated:(BOOL)animated;
+- (void)flashScrollIndicators;
 #endif // macOS]
 
 /*
