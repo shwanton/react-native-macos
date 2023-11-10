@@ -130,6 +130,11 @@
 {
   [self magnifyToFitRect:rect];
 }
+
+- (void)flashScrollIndicators
+{
+  [self flashScrollers];
+}
 #endif // macOS]
 
 #if !TARGET_OS_OSX // [macOS]

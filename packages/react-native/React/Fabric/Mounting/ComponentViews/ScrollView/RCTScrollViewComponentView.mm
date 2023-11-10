@@ -690,9 +690,7 @@ static void RCTSendScrollEventForNativeAnimations_DEPRECATED(RCTUIScrollView *sc
 
 - (void)flashScrollIndicators
 {
-#if !TARGET_OS_OSX // [macOS]
-  [_scrollView flashScrollIndicators];
-#endif // [macOS]
+  [(RCTEnhancedScrollView *)_scrollView flashScrollIndicators]; // [macOS]
 }
 
 - (void)scrollTo:(double)x y:(double)y animated:(BOOL)animated
