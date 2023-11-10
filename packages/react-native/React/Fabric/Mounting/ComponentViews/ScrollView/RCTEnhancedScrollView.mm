@@ -125,6 +125,11 @@
     self.contentOffset = contentOffset;
   } 
 }
+
+- (void)zoomToRect:(CGRect)rect animated:(BOOL)animated
+{
+  [self magnifyToFitRect:rect];
+}
 #endif // macOS]
 
 #if !TARGET_OS_OSX // [macOS]

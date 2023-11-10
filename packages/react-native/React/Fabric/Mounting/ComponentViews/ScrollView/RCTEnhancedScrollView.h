@@ -58,6 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL inverted;
 
 - (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated;
+- (void)zoomToRect:(CGRect)rect animated:(BOOL)animated;
 #endif // macOS]
 
 /*
