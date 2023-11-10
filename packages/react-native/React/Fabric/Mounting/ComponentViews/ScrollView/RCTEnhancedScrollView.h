@@ -56,6 +56,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if TARGET_OS_OSX // [macOS
 @property (nonatomic, assign) BOOL inverted;
+
+- (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated;
 #endif // macOS]
 
 /*

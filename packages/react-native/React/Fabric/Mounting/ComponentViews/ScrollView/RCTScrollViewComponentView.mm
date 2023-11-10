@@ -792,7 +792,12 @@ static void RCTSendScrollEventForNativeAnimations_DEPRECATED(RCTUIScrollView *sc
   [self _forceDispatchNextScrollEvent];
 
 #if !TARGET_OS_OSX // [macOS]
-  [_scrollView setContentOffset:offset animated:animated];
+  if (_layoutMetrics.layoutDirection == LayoutDirection::RightToLeft) {
+    // Adjusting offset.x in right to left layout direction.
+    offset.x = self.contentSize.width - _scrollView.frame.size.width - offset.x;
+  }
+
+  [(RCTEnhancedScrollView *)_scrollView setContentOffset:offset animated:animated];
 #endif // [macOS]
 
   if (!animated) {

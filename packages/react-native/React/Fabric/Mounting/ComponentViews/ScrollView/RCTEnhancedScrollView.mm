@@ -113,6 +113,20 @@
       RCTSanitizeNaNValue(contentOffset.y, @"scrollView.contentOffset.y"));
 }
 
+#if TARGET_OS_OSX // [macOS
+- (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated
+{
+  if (animated) {
+    [NSAnimationContext beginGrouping];
+    [[NSAnimationContext currentContext] setDuration:0.3];
+    [[self.contentView animator] setBoundsOrigin:contentOffset];
+    [NSAnimationContext endGrouping];
+  } else {
+    self.contentOffset = contentOffset;
+  } 
+}
+#endif // macOS]
+
 #if !TARGET_OS_OSX // [macOS]
 - (BOOL)touchesShouldCancelInContentView:(RCTUIView *)view // [macOS]
 {
