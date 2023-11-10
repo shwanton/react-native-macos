@@ -809,9 +809,7 @@ static void RCTSendScrollEventForNativeAnimations_DEPRECATED(RCTUIScrollView *sc
 
 - (void)zoomToRect:(CGRect)rect animated:(BOOL)animated
 {
-#if !TARGET_OS_OSX // [macOS]
-  [_scrollView zoomToRect:rect animated:animated];
-#endif // [macOS]
+  [(RCTEnhancedScrollView *)_scrollView zoomToRect:rect animated:animated]; // [macOS]
 }
 
 #if !TARGET_OS_OSX // [macOS]
