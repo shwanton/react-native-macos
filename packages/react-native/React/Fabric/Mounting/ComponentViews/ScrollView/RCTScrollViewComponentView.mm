@@ -523,7 +523,14 @@ static void RCTSendScrollEventForNativeAnimations_DEPRECATED(RCTUIScrollView *sc
 
 - (void)scrollViewDocumentViewBoundsDidChange:(__unused NSNotification *)notification
 {
-  [self scrollViewDidScroll:_scrollView];
+  RCTEnhancedScrollView *scrollView = _scrollView;
+  
+  if (scrollView.centerContent) {
+    // Update content centering through contentOffset setter
+    [scrollView setContentOffset:scrollView.contentOffset];
+  }
+  
+  [self scrollViewDidScroll:scrollView];
 }
 #endif // macOS]
 
