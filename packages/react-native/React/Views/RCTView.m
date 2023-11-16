@@ -195,6 +195,20 @@ static NSString *RCTRecursiveAccessibilityLabel(RCTUIView *view) // [macOS]
 
 RCT_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
 
+#if TARGET_OS_OSX // [macOS
+- (void)setFrame:(NSRect)frame
+{
+  [super setFrame:frame];
+
+  // On macOS Sonoma, assigning the tool tip will set up a tracking rect based on the view's current frame. Since the
+  // tool tip can be assigned before it was layed out, the tracking rect would stay at NSZeroRect. We fix this by
+  // clearing and reassigning the tool tip to force update the internally created tracking rect with the new frame.
+  NSString *toolTip = self.toolTip;
+  self.toolTip = nil;
+  self.toolTip = toolTip;
+}
+#endif // macOS]
+
 - (void)setReactLayoutDirection:(UIUserInterfaceLayoutDirection)layoutDirection
 {
   if (_reactLayoutDirection != layoutDirection) {
