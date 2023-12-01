@@ -17,6 +17,7 @@
 #import <React/RCTUtils.h> // [macOS]
 #import <React/RCTLocalizedString.h>
 #import <React/RCTView.h> // [macOS]
+#import <React/UIView+React.h> // [macOS]
 #import <react/renderer/components/view/ViewComponentDescriptor.h>
 #import <react/renderer/components/view/ViewEventEmitter.h>
 #import <react/renderer/components/view/ViewProps.h>
@@ -337,10 +338,13 @@ using namespace facebook::react;
     self.nativeId = RCTNSStringFromStringNilIfEmpty(newViewProps.nativeId);
   }
 
-#if !TARGET_OS_OSX // [macOS]
   // `accessible`
   if (oldViewProps.accessible != newViewProps.accessible) {
+#if !TARGET_OS_OSX // [macOS]
     self.accessibilityElement.isAccessibilityElement = newViewProps.accessible;
+#else // [macOS
+    self.accessibilityElement.accessibilityElement = newViewProps.accessible;
+#endif // macOS]
   }
 
   // `accessibilityLabel`
@@ -356,9 +360,14 @@ using namespace facebook::react;
 
   // `accessibilityHint`
   if (oldViewProps.accessibilityHint != newViewProps.accessibilityHint) {
+#if !TARGET_OS_OSX // [macOS]
     self.accessibilityElement.accessibilityHint = RCTNSStringFromStringNilIfEmpty(newViewProps.accessibilityHint);
+#else // [macOS
+    self.accessibilityElement.accessibilityHelp = RCTNSStringFromStringNilIfEmpty(newViewProps.accessibilityHint);
+#endif // macOS]
   }
 
+#if !TARGET_OS_OSX // [macOS]
   // `accessibilityViewIsModal`
   if (oldViewProps.accessibilityViewIsModal != newViewProps.accessibilityViewIsModal) {
     self.accessibilityElement.accessibilityViewIsModal = newViewProps.accessibilityViewIsModal;
@@ -390,6 +399,7 @@ using namespace facebook::react;
   if (oldViewProps.accessibilityIgnoresInvertColors != newViewProps.accessibilityIgnoresInvertColors) {
     self.accessibilityIgnoresInvertColors = newViewProps.accessibilityIgnoresInvertColors;
   }
+#endif // [macOS]
 
   // `accessibilityValue`
   if (oldViewProps.accessibilityValue != newViewProps.accessibilityValue) {
@@ -408,8 +418,7 @@ using namespace facebook::react;
       self.accessibilityElement.accessibilityValue = nil;
     }
   }
-#endif // [macOS]
-
+  
   // `testId`
   if (oldViewProps.testId != newViewProps.testId) {
     self.accessibilityIdentifier = RCTNSStringFromString(newViewProps.testId);
@@ -846,7 +855,7 @@ static RCTBorderStyle RCTBorderStyleFromBorderStyle(BorderStyle borderStyle)
 
 #pragma mark - Accessibility
 
-- (NSObject *)accessibilityElement
+- (RCTPlatformView *)accessibilityElement
 {
   return self;
 }
