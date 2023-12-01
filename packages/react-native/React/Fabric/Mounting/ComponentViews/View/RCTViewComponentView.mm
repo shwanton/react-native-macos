@@ -377,13 +377,19 @@ using namespace facebook::react;
   if (oldViewProps.accessibilityElementsHidden != newViewProps.accessibilityElementsHidden) {
     self.accessibilityElement.accessibilityElementsHidden = newViewProps.accessibilityElementsHidden;
   }
+#endif // [macOS]
 
   // `accessibilityTraits`
   if (oldViewProps.accessibilityTraits != newViewProps.accessibilityTraits) {
+#if !TARGET_OS_OSX // [macOS]
     self.accessibilityElement.accessibilityTraits =
         RCTUIAccessibilityTraitsFromAccessibilityTraits(newViewProps.accessibilityTraits);
+#else // [macOS
+    self.accessibilityElement.accessibilityRole = RCTUIAccessibilityRoleFromAccessibilityTraits(newViewProps.accessibilityTraits);
+#endif // macOS]
   }
 
+#if !TARGET_OS_OSX // [macOS]
   // `accessibilityState`
   if (oldViewProps.accessibilityState != newViewProps.accessibilityState) {
     self.accessibilityTraits &= ~(UIAccessibilityTraitNotEnabled | UIAccessibilityTraitSelected);
