@@ -192,7 +192,7 @@ using namespace facebook::react;
   [componentViewManager setValue:_bridgeProxy forKey:@"bridge"];
 
   [self->_bridgeProxy.uiManager
-      addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, RCTPlatformView *> *viewRegistry) {
+      addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, RCTPlatformView *> *viewRegistry) { // [macOS]
         [method invokeWithBridge:nil module:componentViewManager arguments:newArgs];
       }];
 }

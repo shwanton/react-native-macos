@@ -110,8 +110,11 @@ RCT_EXPORT_MODULE()
 
   RCTExecuteOnMainQueue(^{
     RCT_PROFILE_BEGIN_EVENT(RCTProfileTagAlways, @"UIManager invalidate", nil);
+    NSMutableDictionary<NSNumber *, id<RCTComponent>> *viewRegistry =
+        (NSMutableDictionary<NSNumber *, id<RCTComponent>> *)self->_viewRegistry;
     for (NSNumber *rootViewTag in self->_rootViewTags) {
-		RCTPlatformView *rootView = self->_viewRegistry[rootViewTag]; // [macOS]
+      id<RCTComponent> rootView = viewRegistry[rootViewTag];
+      [self _purgeChildren:[rootView reactSubviews] fromRegistry:viewRegistry];
       if ([rootView conformsToProtocol:@protocol(RCTInvalidating)]) {
         [(id<RCTInvalidating>)rootView invalidate];
       }
