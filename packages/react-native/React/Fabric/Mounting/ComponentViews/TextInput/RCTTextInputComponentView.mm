@@ -466,6 +466,13 @@ using namespace facebook::react;
 }
 
 #if TARGET_OS_OSX // [macOS
+- (void)setEnableFocusRing:(BOOL)enableFocusRing {
+  [super setEnableFocusRing:enableFocusRing];
+  if ([_backedTextInputView respondsToSelector:@selector(setEnableFocusRing:)]) {
+    [_backedTextInputView setEnableFocusRing:enableFocusRing];
+  }
+}
+
 - (void)automaticSpellingCorrectionDidChange:(BOOL)enabled {
   if (_eventEmitter) {
     std::static_pointer_cast<TextInputEventEmitter const>(_eventEmitter)->onAutoCorrectChange({.enabled = static_cast<bool>(enabled)});
