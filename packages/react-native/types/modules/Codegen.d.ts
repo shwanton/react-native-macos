@@ -59,6 +59,7 @@ declare module 'react-native/Libraries/Types/CodegenTypes' {
   export type Float = number;
   export type Int32 = number;
   export type UnsafeObject = object;
+  export type UnsafeMixed = unknown;
 
   type DefaultTypes = number | boolean | string | ReadonlyArray<string>;
   // Default handling, ignore the unused value
