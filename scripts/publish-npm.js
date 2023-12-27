@@ -82,9 +82,8 @@ function publishNpm(buildType) {
       return exit(1);
     }
   }
-
   // [macOS] Do not generate Android artifacts for React Native macOS
-  //generateAndroidArtifacts(version);
+  // generateAndroidArtifacts(version);
 
   if (buildType === 'dry-run') {
     echo('Skipping `npm publish` because --dry-run is set.');
