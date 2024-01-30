@@ -1,11 +1,11 @@
 {
   "name": "react-native-macos",
-  "version": "0.73.1",
+  "version": "0.73.2",
   "description": "React Native for macOS",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/micosoft/react-native-macos.git",
+    "url": "https://github.com/microsoft/react-native-macos.git",
     "directory": "packages/react-native"
   },
   "homepage": "https://reactnative.dev/",
