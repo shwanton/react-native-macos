@@ -854,10 +854,9 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
   NSPoint locationInWindow = self.window.mouseLocationOutsideOfEventStream;
   NSPoint locationInView = [self convertPoint:locationInWindow fromView:nil];
   BOOL insideBounds = NSPointInRect(locationInView, self.visibleRect);
-#if TARGET_OS_OSX // [macOS
+
   // On macOS 14.0 visibleRect can be larger than the view bounds
   insideBounds &= NSPointInRect(locationInView, self.bounds);
-#endif // macOS]
 
   if (hasMouseOver && !insideBounds) {
     hasMouseOver = NO;
