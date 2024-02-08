@@ -1080,7 +1080,7 @@ static NSString *RCTRecursiveAccessibilityLabel(RCTUIView *view) // [macOS]
       }
     }
 
-    if (shouldBlock) {
+    if (_eventEmitter && shouldBlock) {
       if (keyDown) {
         _eventEmitter->onKeyDown(keyEvent);
       } else {
@@ -1109,6 +1109,10 @@ static NSString *RCTRecursiveAccessibilityLabel(RCTUIView *view) // [macOS]
 #pragma mark - Mouse Events
 
 - (void)sendMouseEvent:(BOOL)isMouseOver {
+  if (!_eventEmitter) {
+    return;
+  }
+
   NSPoint locationInWindow = self.window.mouseLocationOutsideOfEventStream;
   NSPoint locationInView = [self convertPoint:locationInWindow fromView:nil];
   
