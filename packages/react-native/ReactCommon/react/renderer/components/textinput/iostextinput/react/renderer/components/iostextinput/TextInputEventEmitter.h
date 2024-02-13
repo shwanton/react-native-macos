@@ -11,6 +11,9 @@
 #include <react/renderer/components/view/ViewEventEmitter.h>
 
 namespace facebook::react {
+#if TARGET_OS_OSX // [macOS
+#include <react/renderer/components/view/macOS/MouseEvent.h>
+#endif // macOS]
 
 class TextInputMetrics {
  public:
@@ -63,6 +66,11 @@ class TextInputEventEmitter : public ViewEventEmitter {
       bool enabled;
     };
   void onGrammarCheckChange(OnGrammarCheckChange value) const;
+  
+  struct PasteEvent {
+    std::vector<DataTransferItem> dataTransferItems;
+  };
+  void onPaste(PasteEvent const &pasteEvent) const;
 #endif // macOS]
 
  private:
