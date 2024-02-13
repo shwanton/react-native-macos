@@ -193,6 +193,15 @@ void TextInputEventEmitter::onGrammarCheckChange(OnGrammarCheckChange event) con
     return payload;
   });
 }
+
+void TextInputEventEmitter::onPaste(PasteEvent const &pasteEvent) const {
+  dispatchEvent("paste", [pasteEvent](jsi::Runtime &runtime) {
+    auto payload = jsi::Object(runtime);
+    auto dataTransfer= dataTransferPayload(runtime, pasteEvent.dataTransferItems);
+    payload.setProperty(runtime, "dataTransfer", dataTransfer);
+    return payload;
+  });
+}
 #endif // macOS]
 
 } // namespace facebook::react
