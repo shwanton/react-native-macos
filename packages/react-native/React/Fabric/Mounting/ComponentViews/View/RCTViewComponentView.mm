@@ -1098,8 +1098,8 @@ static NSString *RCTRecursiveAccessibilityLabel(RCTUIView *view) // [macOS]
 
 - (BOOL)handleKeyboardEvent:(NSEvent *)event {
   BOOL keyDown = event.type == NSEventTypeKeyDown;
-  BOOL hasHandler = keyDown ? _props->macOSViewEvents[facebook::react::MacOSViewEvents::Offset::KeyDown]
-                            : _props->macOSViewEvents[facebook::react::MacOSViewEvents::Offset::KeyUp];
+  BOOL hasHandler = keyDown ? _props->macOSViewEvents[MacOSViewEvents::Offset::KeyDown]
+                            : _props->macOSViewEvents[MacOSViewEvents::Offset::KeyUp];
   if (hasHandler) {
     auto validKeys = keyDown ? _props->validKeysDown : _props->validKeysUp;
 
@@ -1395,8 +1395,9 @@ enum MouseEventType {
 
   NSClipView *clipView = self.window ? self.enclosingScrollView.contentView : nil;
   
-  BOOL hasMouseEventHandler = _props->macOSViewEvents[facebook::react::MacOSViewEvents::Offset::MouseEnter] ||
-    _props->macOSViewEvents[facebook::react::MacOSViewEvents::Offset::MouseLeave];
+
+  BOOL hasMouseEventHandler = _props->macOSViewEvents[MacOSViewEvents::Offset::MouseEnter] ||
+    _props->macOSViewEvents[MacOSViewEvents::Offset::MouseLeave];
 
   if (_hasClipViewBoundsObserver && (!clipView || !hasMouseEventHandler)) {
     _hasClipViewBoundsObserver = NO;
@@ -1426,8 +1427,8 @@ enum MouseEventType {
   }
 
   if (
-    _props->macOSViewEvents[facebook::react::MacOSViewEvents::Offset::MouseEnter] ||
-    _props->macOSViewEvents[facebook::react::MacOSViewEvents::Offset::MouseLeave]
+    _props->macOSViewEvents[MacOSViewEvents::Offset::MouseEnter] ||
+    _props->macOSViewEvents[MacOSViewEvents::Offset::MouseLeave]
   ) {
     _trackingArea = [[NSTrackingArea alloc] initWithRect:self.bounds
                                                  options:NSTrackingActiveAlways | NSTrackingMouseEnteredAndExited
@@ -1442,7 +1443,7 @@ enum MouseEventType {
 
 - (void)mouseUp:(NSEvent *)event
 {
-  BOOL hasDoubleClickEventHandler = _props->macOSViewEvents[facebook::react::MacOSViewEvents::Offset::DoubleClick];
+  BOOL hasDoubleClickEventHandler = _props->macOSViewEvents[MacOSViewEvents::Offset::DoubleClick];
   if (hasDoubleClickEventHandler && event.clickCount == 2) {
     [self sendMouseEvent:DoubleClick];
   } else {
