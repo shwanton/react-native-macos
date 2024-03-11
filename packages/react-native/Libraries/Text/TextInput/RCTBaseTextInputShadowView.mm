@@ -223,8 +223,8 @@
                               return;
                             }
 
-                            if (maximumFontLineHeight <= font.lineHeight) {
-                              maximumFontLineHeight = font.lineHeight;
+                            if (maximumFontLineHeight <= UIFontLineHeight(font)) { // [macOS]
+                              maximumFontLineHeight = UIFontLineHeight(font); // [macOS]
                             }
                           }];
 
