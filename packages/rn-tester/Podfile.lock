@@ -1282,7 +1282,7 @@ SPEC CHECKSUMS:
   React-utils: 367f55e897833754aa0c3160fd68be929d2508ef
   ReactCommon: 5686f9f0c355ed6797b7fe204c1b79d48b3c978d
   ReactCommon-Samples: b0b0654c5627cf577531dd1e386ac76b7042a951
-  ScreenshotManager: 0ff10c8e25087698410fbbd0f302270befc356e9
+  ScreenshotManager: e6a3d47cce3117af8401046daf5f1f8a1a628098
   SocketRocket: f6c6249082c011e6de2de60ed641ef8bbe0cfac9
   Yoga: a2a01e55b1bc5096176a09ed887ea4aadd0bb8f6
 
