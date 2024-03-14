@@ -220,6 +220,17 @@ LayoutMetrics LayoutableShadowNode::computeRelativeLayoutMetrics(
           resultFrame, currentFrame.getCenter());
     }
 
+#if TARGET_OS_OSX // [macOS
+    auto parentShadowNode = (i + 1 < size)
+        ? traitCast<LayoutableShadowNode const *>(shadowNodeList.at(i + 1))
+        : nullptr;
+
+    if (parentShadowNode && !currentShadowNode->getIsVerticalAxisFlipped() && parentShadowNode->getIsVerticalAxisFlipped()) {
+      resultFrame.origin.y = currentFrame.size.height - (resultFrame.origin.y + resultFrame.size.height);
+    }
+#endif // macOS]
+    resultFrame.origin += currentFrame.origin;
+
     if (!shouldCalculateTransformedFrames && i != 0 &&
         policy.includeTransform) {
       resultFrame.origin += currentShadowNode->getContentOriginOffset();
@@ -234,6 +245,12 @@ LayoutMetrics LayoutableShadowNode::computeRelativeLayoutMetrics(
         return EmptyLayoutMetrics;
       }
     }
+
+#if TARGET_OS_OSX // [macOS
+    if (parentShadowNode && currentShadowNode->getIsVerticalAxisFlipped() && !parentShadowNode->getIsVerticalAxisFlipped()) {
+      resultFrame.origin.y = currentFrame.size.height - (resultFrame.origin.y + resultFrame.size.height);
+    }
+#endif // macOS]
   }
 
   // ------------------------------
