@@ -316,6 +316,14 @@ Float LayoutableShadowNode::lastBaseline(Size /*size*/) const {
   return 0;
 }
 
+#if TARGET_OS_OSX // [macOS
+bool LayoutableShadowNode::getIsVerticalAxisFlipped() const {
+  // Views extending RCTUIView are set up to have their origin at the top of the
+  // view on macOS to match the default set up of UIKit UIView on iOS.
+  return false;
+}
+#endif // macOS]
+
 ShadowNode::Shared LayoutableShadowNode::findNodeAtPoint(
     const ShadowNode::Shared& node,
     Point point) {
