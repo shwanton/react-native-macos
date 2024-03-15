@@ -21,4 +21,5 @@ type NativeProps = $ReadOnly<{|
 export default (codegenNativeComponent<NativeProps>('ScrollContentView', {
   paperComponentName: 'RCTScrollContentView',
   excludedPlatforms: ['android'],
+  interfaceOnly: true,
 }): HostComponent<NativeProps>);

@@ -7,7 +7,7 @@
 
 #import "RCTScrollContentComponentView.h"
 
-#import <react/renderer/components/rncore/ComponentDescriptors.h>
+#import <react/renderer/components/scrollview/ScrollContentViewComponentDescriptor.h>
 #import <react/renderer/components/rncore/EventEmitters.h>
 #import <react/renderer/components/rncore/Props.h>
 
