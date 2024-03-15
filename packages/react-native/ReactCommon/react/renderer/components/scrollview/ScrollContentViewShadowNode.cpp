@@ -14,4 +14,10 @@ namespace facebook::react {
 
 const char ScrollContentViewComponentName[] = "ScrollContentView";
 
+#if TARGET_OS_OSX // [macOS
+bool ScrollContentViewShadowNode::getIsVerticalAxisFlipped() const {
+  return getConcreteProps().inverted;
+}
+#endif // macOS]
+
 } // namespace facebook::react

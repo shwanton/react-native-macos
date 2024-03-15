@@ -69,4 +69,10 @@ Point ScrollViewShadowNode::getContentOriginOffset() const {
   return {-contentOffset.x, -contentOffset.y + stateData.scrollAwayPaddingTop};
 }
 
+#if TARGET_OS_OSX // [macOS
+bool ScrollViewShadowNode::getIsVerticalAxisFlipped() const {
+  return getConcreteProps().inverted;
+}
+#endif // macOS]
+
 } // namespace facebook::react

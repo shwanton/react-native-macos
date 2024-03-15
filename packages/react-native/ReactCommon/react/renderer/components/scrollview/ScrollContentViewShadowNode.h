@@ -20,10 +20,16 @@ extern const char ScrollContentViewComponentName[];
  * `ShadowNode` for <ScrollContentView> component.
  */
 class ScrollContentViewShadowNode final : public ConcreteViewShadowNode<
-                                       ScrollContentViewComponentName,
-                                       ScrollContentViewProps> {
+                                              ScrollContentViewComponentName,
+                                              ScrollContentViewProps> {
  public:
   using ConcreteViewShadowNode::ConcreteViewShadowNode;
+
+#pragma mark - LayoutableShadowNode
+
+#if TARGET_OS_OSX // [macOS
+  bool getIsVerticalAxisFlipped() const override;
+#endif // macOS]
 };
 
 } // namespace react
