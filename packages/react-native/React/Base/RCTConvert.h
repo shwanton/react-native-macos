@@ -155,6 +155,7 @@ typedef BOOL css_backface_visibility_t;
 
 #if TARGET_OS_OSX // [macOS
 + (NSString *)accessibilityRoleFromTraits:(id)json;
++ (NSString *)accessibilityRoleFromRole:(id)json;
 
 + (NSArray<RCTHandledKey *> *)RCTHandledKeyArray:(id)json;
 #endif // macOS]
