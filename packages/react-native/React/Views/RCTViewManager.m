@@ -300,7 +300,7 @@ RCT_CUSTOM_VIEW_PROPERTY(accessibilityRole, UIAccessibilityTraits, RCTView)
     [self updateAccessibilityTraitsForRole:view withDefaultView:defaultView];
   }
 #else // [macOS
-  view.reactAccessibilityElement.accessibilityRoleInternal = json ?  : nil;
+  view.reactAccessibilityElement.accessibilityRoleInternal = json ? [RCTConvert accessibilityRoleFromTraits:json] : nil;
   if (view.reactAccessibilityElement.accessibilityRole != view.reactAccessibilityElement.accessibilityRoleInternal) {
     [self updateAccessibilityRole:view withDefaultView:defaultView];
   }
