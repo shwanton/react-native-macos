@@ -300,7 +300,9 @@ RCT_CUSTOM_VIEW_PROPERTY(accessibilityRole, UIAccessibilityTraits, RCTView)
     [self updateAccessibilityTraitsForRole:view withDefaultView:defaultView];
   }
 #else // [macOS
+  // accessibilityRoleInternal is used to cache the converted value from the prop
   view.reactAccessibilityElement.accessibilityRoleInternal = json ? [RCTConvert accessibilityRoleFromTraits:json] : nil;
+  // update the actual NSAccessibilityRole if it doesn't match
   if (view.reactAccessibilityElement.accessibilityRole != view.reactAccessibilityElement.accessibilityRoleInternal) {
     [self updateAccessibilityRole:view withDefaultView:defaultView];
   }
@@ -318,7 +320,9 @@ RCT_CUSTOM_VIEW_PROPERTY(role, UIAccessibilityTraits, RCTView)
     [self updateAccessibilityTraitsForRole:view withDefaultView:defaultView];
   }
 #else // [macOS
+    // role is used to cache the converted value from the prop
     view.reactAccessibilityElement.role = json ? [RCTConvert accessibilityRoleFromRole:json] : nil;
+    // update the actual NSAccessibilityRole if it doesn't match
     if (view.reactAccessibilityElement.accessibilityRole != view.reactAccessibilityElement.role) {
       [self updateAccessibilityRole:view withDefaultView:view];
     }
@@ -345,7 +349,9 @@ RCT_CUSTOM_VIEW_PROPERTY(role, UIAccessibilityTraits, RCTView)
 #else // [macOS
 - (void) updateAccessibilityRole:(RCTView *)view withDefaultView:(RCTView *)defaultView
 {
+  // First check the value from `role`
   view.reactAccessibilityElement.accessibilityRole = view.reactAccessibilityElement.role ? view.reactAccessibilityElement.role : nil;
+  // Fallback to `accessibilityRole` if nil, or the defaultView's NSAccessibilityRole
   if (view.reactAccessibilityElement.accessibilityRole == nil) {
     view.reactAccessibilityElement.accessibilityRole = view.reactAccessibilityElement.accessibilityRoleInternal ? view.reactAccessibilityElement.accessibilityRoleInternal : defaultView.accessibilityRole;
   }

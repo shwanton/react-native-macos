@@ -1487,6 +1487,10 @@ RCT_ENUM_CONVERTER(
     integerValue)
 
 #if TARGET_OS_OSX // [macOS
+// Used to convert the JSON from `role` to the corresponding
+// NSAccessibilityRole (NSString*), has slightly different mappings than the
+// old accessibilityRole prop for back compatability. `role` matches ARIA Core
+// AAM spec and takes precedence. See https://www.w3.org/TR/core-aam-1.1/
 + (NSString*) accessibilityRoleFromRole:(NSString*)ariaRole
 {
     static NSDictionary<NSString *, NSAccessibilityRole> * ariaRoleToNsRole;
