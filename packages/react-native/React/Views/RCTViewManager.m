@@ -238,7 +238,7 @@ RCT_REMAP_VIEW_PROPERTY(onMagicTap, reactAccessibilityElement.onMagicTap, RCTDir
 #else // [macOS accessibilityTraits is gone in react-native and deprecated in react-native-macos, use accessibilityRole instead
 RCT_CUSTOM_VIEW_PROPERTY(accessibilityTraits, NSString, RCTView)
 {
-  view.reactAccessibilityElement.accessibilityRoleInternal = json ? [RCTConvert accessibilityRoleFromTraits:json] : nil;
+  view.reactAccessibilityElement.accessibilityRoleInternal = json ? [RCTConvert accessibilityRoleFromTraits:json withAriaMappings:NO] : nil;
   if (view.reactAccessibilityElement.accessibilityRole != view.reactAccessibilityElement.accessibilityRoleInternal) {
     [self updateAccessibilityRole:view withDefaultView:defaultView];
   }
@@ -301,7 +301,7 @@ RCT_CUSTOM_VIEW_PROPERTY(accessibilityRole, UIAccessibilityTraits, RCTView)
   }
 #else // [macOS
   // accessibilityRoleInternal is used to cache the converted value from the prop
-  view.reactAccessibilityElement.accessibilityRoleInternal = json ? [RCTConvert accessibilityRoleFromTraits:json] : nil;
+  view.reactAccessibilityElement.accessibilityRoleInternal = json ? [RCTConvert accessibilityRoleFromTraits:json withAriaMappings:NO] : nil;
   // update the actual NSAccessibilityRole if it doesn't match
   if (view.reactAccessibilityElement.accessibilityRole != view.reactAccessibilityElement.accessibilityRoleInternal) {
     [self updateAccessibilityRole:view withDefaultView:defaultView];
@@ -320,12 +320,12 @@ RCT_CUSTOM_VIEW_PROPERTY(role, UIAccessibilityTraits, RCTView)
     [self updateAccessibilityTraitsForRole:view withDefaultView:defaultView];
   }
 #else // [macOS
-    // role is used to cache the converted value from the prop
-    view.reactAccessibilityElement.role = json ? [RCTConvert accessibilityRoleFromRole:json] : nil;
-    // update the actual NSAccessibilityRole if it doesn't match
-    if (view.reactAccessibilityElement.accessibilityRole != view.reactAccessibilityElement.role) {
-      [self updateAccessibilityRole:view withDefaultView:view];
-    }
+  // role is used to cache the converted value from the prop
+  view.reactAccessibilityElement.role = json ? [RCTConvert accessibilityRoleFromTraits:json withAriaMappings:YES] : nil;
+  // update the actual NSAccessibilityRole if it doesn't match
+  if (view.reactAccessibilityElement.accessibilityRole != view.reactAccessibilityElement.role) {
+    [self updateAccessibilityRole:view withDefaultView:view];
+  }
 #endif // macOS]
 }
 
