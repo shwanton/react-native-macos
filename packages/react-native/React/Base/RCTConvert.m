@@ -1492,6 +1492,10 @@ RCT_ENUM_CONVERTER(
 // AAM spec and takes precedence. See https://www.w3.org/TR/core-aam-1.1/
 + (NSString*) accessibilityRoleFromAriaRole:(NSString*)ariaRole
 {
+  // rowgroup is explicitly not mapped
+  if ([ariaRole isEqualToString:@"rowgroup"]) {
+      return nil;
+  }
   static NSDictionary<NSString *, NSAccessibilityRole> * ariaRoleToNSAccessibilityRole;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -1545,7 +1549,6 @@ RCT_ENUM_CONVERTER(
       @"radiogroup": NSAccessibilityRadioGroupRole,
       @"region": NSAccessibilityGroupRole,
       @"row": NSAccessibilityRowRole,
-      // rowgroup not mapped
       @"rowheader": NSAccessibilityCellRole,
       @"scrollbar": NSAccessibilityScrollBarRole,
       @"search": NSAccessibilityGroupRole,
@@ -1574,7 +1577,7 @@ RCT_ENUM_CONVERTER(
     // Fall back to legacy mappings if an aria mapping is not found. This would
     // include macOS specific roles like disclosure and legacy accessibilityTrait
     // based mappings like adjustable
-    nsRole = [RCTConvert accessibilityRoleFromTrait:ariaRole];
+   nsRole = [RCTConvert accessibilityRoleFromTrait:ariaRole];
   }
   return nsRole;
 }
@@ -1633,7 +1636,7 @@ RCT_ENUM_CONVERTER(
   return role;
 }
 
-+ (NSString *)accessibilityRoleFromTraits:(id)json usingAriaMappings:(BOOL)useAriaMappings
++ (NSString *)accessibilityRoleFromTraits:(id)json useAriaMappings:(BOOL)useAriaMappings
 {
   if ([json isKindOfClass:[NSString class]]) {
     return useAriaMappings ? [RCTConvert accessibilityRoleFromAriaRole:json] : [RCTConvert accessibilityRoleFromTrait:json];
