@@ -1487,16 +1487,15 @@ RCT_ENUM_CONVERTER(
     integerValue)
 
 #if TARGET_OS_OSX // [macOS
-// Used to convert the JSON from `role` to the corresponding
-// NSAccessibilityRole (NSString*), has slightly different mappings than the
+// This is for the role prop & has slightly different mappings than the
 // old accessibilityRole prop for back compatability. `role` matches ARIA Core
 // AAM spec and takes precedence. See https://www.w3.org/TR/core-aam-1.1/
-+ (NSString*) accessibilityRoleFromRole:(NSString*)ariaRole
++ (NSString*) accessibilityRoleFromAriaRole:(NSString*)ariaRole
 {
-  static NSDictionary<NSString *, NSAccessibilityRole> * ariaRoleToNsRole;
+  static NSDictionary<NSString *, NSAccessibilityRole> * ariaRoleToNSAccessibilityRole;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    ariaRoleToNsRole = @{
+    ariaRoleToNSAccessibilityRole = @{
       @"alert": NSAccessibilityGroupRole,
       @"alertdialog": NSAccessibilityGroupRole,
       @"application": NSAccessibilityGroupRole,
@@ -1570,22 +1569,19 @@ RCT_ENUM_CONVERTER(
       @"treeitem": NSAccessibilityRowRole,
     };
   });
-  NSAccessibilityRole nsRole = [ariaRoleToNsRole valueForKey: ariaRole];
+  NSAccessibilityRole nsRole = [ariaRoleToNSAccessibilityRole valueForKey: ariaRole];
   if (nsRole == nil) {
-    // Dictionary above is fully filled for roles spec'd by aria mappings since
-    // the aria mappings disagrees with some of the old mappings. We'll still 
-    // fall back to the legacy mappings for macOS specific roles like 
-    // `disclosure` and legacy accessibilityTrait-based mappings like 
-    // `adjustable`.
+    // Fall back to legacy mappings if an aria mapping is not found. This would
+    // include macOS specific roles like disclosure and legacy accessibilityTrait
+    // based mappings like adjustable
     nsRole = [RCTConvert accessibilityRoleFromTrait:ariaRole];
   }
   return nsRole;
 }
 
-// Used to convert the JSON from accessibilityRole to the corresponding
-// NSAccessibilityRole (NSString*), has slightly different mappings than the
-// new role prop for back compatability. role matches ARIA spec and takes
-// precedence.
+// This function is for accessibilityRole & has slightly different mappings 
+// than the new role prop for back compatability. role matches ARIA spec and
+// takes precedence.
 + (NSString*)accessibilityRoleFromTrait:(NSString*)trait
 {
   static NSDictionary<NSString *, NSString *> *traitOrRoleToAccessibilityRole;
@@ -1637,13 +1633,13 @@ RCT_ENUM_CONVERTER(
   return role;
 }
 
-+ (NSString *)accessibilityRoleFromTraits:(id)json withAriaMappings:(BOOL) useAriaMappings
++ (NSString *)accessibilityRoleFromTraits:(id)json usingAriaMappings:(BOOL)useAriaMappings
 {
   if ([json isKindOfClass:[NSString class]]) {
-    return useAriaMappings ? [RCTConvert accessibilityRoleFromRole: json] : [RCTConvert accessibilityRoleFromTrait:json];
+    return useAriaMappings ? [RCTConvert accessibilityRoleFromAriaRole:json] : [RCTConvert accessibilityRoleFromTrait:json];
   } else if ([json isKindOfClass:[NSArray class]]) {
     for (NSString *trait in json) {
-      NSString *accessibilityRole = useAriaMappings ? [RCTConvert accessibilityRoleFromRole: json] : [RCTConvert accessibilityRoleFromTrait:trait];
+      NSString *accessibilityRole = useAriaMappings ? [RCTConvert accessibilityRoleFromAriaRole:json] : [RCTConvert accessibilityRoleFromTrait:trait];
       if (![accessibilityRole isEqualToString:NSAccessibilityUnknownRole]) {
         return accessibilityRole;
       }
