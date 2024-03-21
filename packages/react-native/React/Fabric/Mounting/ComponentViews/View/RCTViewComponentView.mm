@@ -61,7 +61,10 @@ using namespace facebook::react;
     _reactSubviews = [NSMutableArray new];
 #if !TARGET_OS_OSX // [macOS]
     self.multipleTouchEnabled = YES;
-#endif // [macOS]
+#else // [macOS
+    // React views have their bounds clipping disabled by default
+    self.clipsToBounds = NO;
+#endif // macOS]
   }
   return self;
 }
@@ -762,6 +765,17 @@ static NSCursor *NSCursorFromCursor(Cursor cursor)
 }
 #endif // macOS]
 
+#if TARGET_OS_OSX // [macOS
+- (void)setClipsToBounds:(BOOL)clipsToBounds
+{
+  // Set the property managed by RCTUIView
+  super.clipsToBounds = clipsToBounds;
+
+  // Bounds clipping must also be configured on the view's layer
+  self.layer.masksToBounds = clipsToBounds;
+}
+#endif // macOS]
+
 - (void)invalidateLayer
 {
   CALayer *layer = self.layer;
@@ -845,8 +859,17 @@ static NSCursor *NSCursorFromCursor(Cursor cursor)
     CGColorRef borderColor = RCTCreateCGColorRefFromSharedColor(borderMetrics.borderColors.left);
     layer.borderColor = borderColor;
     CGColorRelease(borderColor);
+#if TARGET_OS_OSX // [macOS]
     layer.cornerRadius = (CGFloat)borderMetrics.borderRadii.topLeft;
 
+#else // [macOS
+    // Setting the corner radius on view's layer enables back clipping to bounds. To
+    // avoid getting the native view out of sync with the component's props, we make
+    // sure that clipsToBounds stays unchanged after setting the corner radius.
+    BOOL clipsToBounds = self.clipsToBounds;
+    layer.cornerRadius = (CGFloat)borderMetrics.borderRadii.topLeft;
+    self.clipsToBounds = clipsToBounds;
+#endif // macOS]
     layer.cornerCurve = CornerCurveFromBorderCurve(borderMetrics.borderCurves.topLeft);
 
     layer.backgroundColor = _backgroundColor.CGColor;
