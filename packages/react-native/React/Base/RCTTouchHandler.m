@@ -52,6 +52,17 @@
     RCTTouchHandler *targetTouchHandler = [RCTTouchHandler touchHandlerForEvent:event];
     if (!targetTouchHandler) {
       [RCTTouchHandler notifyOutsideViewMouseUp:event];
+    } else if ([mode isEqualTo:NSEventTrackingRunLoopMode]) {
+      // A tracking loop will deque an event, thereby not submitting it to the touch handler.
+      if (event.type == NSEventTypeLeftMouseUp) {
+        // NSTextField uses a tracking loop when clicking inside the view bounds. If a view
+        // is located above the NSTextField, the mouseUp won't reach the view and break the
+        // pressability. This submits the mouse up event on the next run loop to let it go
+        // through the touch handler.
+        dispatch_async(dispatch_get_main_queue (), ^{
+          [targetTouchHandler mouseUp:event];
+        });
+      }
     }
   }
 
