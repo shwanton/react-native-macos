@@ -9,6 +9,7 @@
 
 #include <optional>
 #include <string>
+#include <vector> // [macOS]
 
 namespace facebook::react {
 
