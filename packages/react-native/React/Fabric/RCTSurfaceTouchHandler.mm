@@ -58,7 +58,13 @@ using namespace facebook::react;
     } else if ([mode isEqualTo:NSEventTrackingRunLoopMode]) {
       // If the event is consumed by an event tracking loop, we won't get the mouse up event
       if (event.type == NSEventTypeLeftMouseUp) {
-        [targetSurfaceTouchHandler endFromEventTrackingLeftMouseUp:event];
+        // NSTextField uses a tracking loop when clicking inside the view bounds. If a view
+        // is located above the NSTextField, the mouseUp won't reach the view and break the
+        // pressability. This submits the mouse up event on the next run loop to let it go
+        // through the touch handler.
+        dispatch_async(dispatch_get_main_queue (), ^{
+          [targetSurfaceTouchHandler mouseUp:event];
+        });
       } else if (event.type == NSEventTypeRightMouseUp) {
         [targetSurfaceTouchHandler endFromEventTrackingRightMouseUp:event];
       }
