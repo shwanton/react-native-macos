@@ -100,6 +100,12 @@ class SubmitKeyEvent final {
     bool metaKey{false};
     bool functionKey{false};
 };
+
+enum class PastedTypesType {
+  FileUrl,
+  Image,
+  String,
+};
 #endif // macOS]
 
 /*
@@ -265,7 +271,14 @@ class TextInputTraits final {
    * macOS-only
    * Default value: `false`
    */
-   bool clearTextOnSubmit{false};
+  bool clearTextOnSubmit{false};
+
+  /*
+   * List of pastable types
+   * macOS-only
+   * Default value: `empty list`
+   */
+  std::vector<PastedTypesType> pastedTypes{};
 #endif // macOS]
 };
 

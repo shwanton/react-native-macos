@@ -94,6 +94,7 @@
 #endif
   RCTBackedTextFieldDelegateAdapter *_textInputDelegateAdapter;
   NSDictionary<NSAttributedStringKey, id> *_defaultTextAttributes;
+  NSArray<NSPasteboardType> *_readablePasteboardTypes;
 }
 
 #if TARGET_OS_OSX // [macOS
@@ -671,6 +672,13 @@
   if ([self.textInputDelegate textInputShouldHandleKeyEvent:event]) {
     [super keyUp:event];
   }
+}
+#endif // macOS]
+  
+#if TARGET_OS_OSX // [macOS
+- (void)setReadablePasteBoardTypes:(NSArray<NSPasteboardType> *)readablePasteboardTypes
+{
+  _readablePasteboardTypes = readablePasteboardTypes;
 }
 #endif // macOS]
 
