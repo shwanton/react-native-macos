@@ -8,25 +8,18 @@
  * @flow
  */
 
-import type {
-  HostComponent,
-  PartialViewConfig,
-} from '../../Renderer/shims/ReactNativeTypes';
-import type {ViewProps as Props} from '../View/ViewPropTypes';
+import type {HostComponent} from '../../Renderer/shims/ReactNativeTypes';
+import type {ViewProps} from '../View/ViewPropTypes';
 
-import * as NativeComponentRegistry from '../../NativeComponent/NativeComponentRegistry';
+import codegenNativeComponent from '../../Utilities/codegenNativeComponent';
 
-export const __INTERNAL_VIEW_CONFIG: PartialViewConfig = {
-  uiViewClassName: 'RCTScrollContentView',
-  bubblingEventTypes: {},
-  directEventTypes: {},
-  validAttributes: {},
-};
+type NativeProps = $ReadOnly<{|
+  ...ViewProps,
+  inverted?: ?boolean,
+|}>;
 
-const ScrollContentViewNativeComponent: HostComponent<Props> =
-  NativeComponentRegistry.get<Props>(
-    'RCTScrollContentView',
-    () => __INTERNAL_VIEW_CONFIG,
-  );
-
-export default ScrollContentViewNativeComponent;
+export default (codegenNativeComponent<NativeProps>('ScrollContentView', {
+  paperComponentName: 'RCTScrollContentView',
+  excludedPlatforms: ['android'],
+  interfaceOnly: true,
+}): HostComponent<NativeProps>);

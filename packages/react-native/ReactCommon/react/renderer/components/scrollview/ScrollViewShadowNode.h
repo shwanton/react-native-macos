@@ -39,6 +39,10 @@ class ScrollViewShadowNode final : public ConcreteViewShadowNode<
   void layout(LayoutContext layoutContext) override;
   Point getContentOriginOffset() const override;
 
+#if TARGET_OS_OSX // [macOS
+  bool getIsVerticalAxisFlipped() const override;
+#endif // macOS]
+
  private:
   void updateStateIfNeeded();
   void updateScrollContentOffsetIfNeeded();
