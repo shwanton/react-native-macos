@@ -13,6 +13,19 @@
 #import "RCTSurfaceView.h"
 #import "RCTUtils.h"
 
+#if TARGET_OS_OSX // [macOS
+#import <React/RCTTouchHandler.h>
+
+#ifdef RN_FABRIC_ENABLED
+#import <React/RCTFabricSurfaceHostingProxyRootView.h>
+#import <React/RCTSurfaceTouchHandler.h>
+#endif
+
+#if __has_include(<React/RCTDevMenu.h>)
+#import <React/RCTDevMenu.h>
+#endif // macOS]
+#endif
+
 @interface RCTSurfaceHostingView ()
 
 @property (nonatomic, assign) BOOL isActivityIndicatorViewVisible;
@@ -23,12 +36,28 @@
 @implementation RCTSurfaceHostingView {
   RCTUIView *_Nullable _activityIndicatorView; // [macOS]
   RCTUIView *_Nullable _surfaceView; // [macOS]
+  RCTBridge* _bridge; // [macOS]
   RCTSurfaceStage _stage;
 }
 
 RCT_NOT_IMPLEMENTED(-(instancetype)init)
 RCT_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
 RCT_NOT_IMPLEMENTED(-(nullable instancetype)initWithCoder : (NSCoder *)coder)
+
+- (instancetype)initWithBridge:(RCTBridge *)bridge
+                    moduleName:(NSString *)moduleName
+             initialProperties:(NSDictionary *)initialProperties
+               sizeMeasureMode:(RCTSurfaceSizeMeasureMode)sizeMeasureMode
+{
+  id<RCTSurfaceProtocol> surface = [[self class] createSurfaceWithBridge:bridge
+                                                              moduleName:moduleName
+                                                       initialProperties:initialProperties];
+  if (self = [self initWithSurface:surface sizeMeasureMode:sizeMeasureMode]) {
+    _bridge = bridge; // [macOS]
+    [surface start];
+  }
+  return self;
+}
 
 - (instancetype)initWithSurface:(id<RCTSurfaceProtocol>)surface
                 sizeMeasureMode:(RCTSurfaceSizeMeasureMode)sizeMeasureMode
@@ -211,6 +240,29 @@ RCT_NOT_IMPLEMENTED(-(nullable instancetype)initWithCoder : (NSCoder *)coder)
                   userInfo:@{
                     RCTUserInterfaceStyleDidChangeNotificationAppearanceKey : self.effectiveAppearance,
                   }];
+}
+#endif // macOS]
+
+#pragma mark - NSView
+
+#if TARGET_OS_OSX // [macOS
+- (NSMenu *)menuForEvent:(NSEvent *)event
+{
+  NSMenu *menu = nil;
+#if __has_include(<React/RCTDevMenu.h>) && RCT_DEV
+  menu = [[_bridge devMenu] menu];
+#endif
+  if (menu == nil) {
+    menu = [super menuForEvent:event];
+  }
+
+  if (menu) {
+    if ([self isKindOfClass:[RCTSurfaceHostingView class]]) {
+      [[RCTTouchHandler touchHandlerForView:self] willShowMenuWithEvent:event];
+    }
+  }
+
+  return menu;
 }
 #endif // macOS]
 

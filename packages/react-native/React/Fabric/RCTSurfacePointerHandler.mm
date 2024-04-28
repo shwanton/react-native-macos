@@ -655,6 +655,7 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithTarget : (id)target action : (SEL)act
 
     _activePointers.erase(touch);
 #else // [macOS
+    _identifierPool.enqueue(activeTouch.touch.identifier);
     _activePointers.erase(touch.eventNumber);
 #endif // macOS]
   }

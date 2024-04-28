@@ -12,11 +12,70 @@
 #import <React/RCTViewComponentView.h>
 #import <React/RCTUIKit.h>
 
+#if TARGET_OS_OSX // [macOS
+#import "React/RCTSurfaceHostingView.h"
+#endif // macOS]
+
 #import "RCTConversions.h"
 #import "RCTSurfacePointerHandler.h"
 #import "RCTTouchableComponentViewProtocol.h"
 
 using namespace facebook::react;
+
+#if TARGET_OS_OSX // [macOS
+@interface RCTSurfaceTouchHandler (Private)
+- (void)endFromEventTrackingLeftMouseUp:(NSEvent *)event;
+- (void)endFromEventTrackingRightMouseUp:(NSEvent *)event;
+@end
+
+@interface NSApplication (RCTSurfaceTouchHandlerOverride)
+- (NSEvent*)override_surface_nextEventMatchingMask:(NSEventMask)mask
+                                 untilDate:(NSDate*)expiration
+                                    inMode:(NSRunLoopMode)mode
+                                   dequeue:(BOOL)dequeue;
+@end
+
+@implementation NSApplication (RCTSurfaceTouchHandlerOverride)
+
++ (void)load
+{
+  RCTSwapInstanceMethods(self, @selector(nextEventMatchingMask:untilDate:inMode:dequeue:), @selector(override_surface_nextEventMatchingMask:untilDate:inMode:dequeue:));
+}
+
+- (NSEvent*)override_surface_nextEventMatchingMask:(NSEventMask)mask
+                                 untilDate:(NSDate*)expiration
+                                    inMode:(NSRunLoopMode)mode
+                                   dequeue:(BOOL)dequeue
+{
+  NSEvent* event = [self override_surface_nextEventMatchingMask:mask
+                                              untilDate:expiration
+                                                 inMode:mode
+                                                dequeue:dequeue];
+  if (dequeue && (event.type == NSEventTypeLeftMouseUp || event.type == NSEventTypeRightMouseUp || event.type == NSEventTypeOtherMouseUp)) {
+    RCTSurfaceTouchHandler *targetSurfaceTouchHandler = [RCTSurfaceTouchHandler surfaceTouchHandlerForEvent:event];
+    if (!targetSurfaceTouchHandler) {
+      [RCTSurfaceTouchHandler notifyOutsideViewMouseUp:event];
+    } else if ([mode isEqualTo:NSEventTrackingRunLoopMode]) {
+      // If the event is consumed by an event tracking loop, we won't get the mouse up event
+      if (event.type == NSEventTypeLeftMouseUp) {
+        // NSTextField uses a tracking loop when clicking inside the view bounds. If a view
+        // is located above the NSTextField, the mouseUp won't reach the view and break the
+        // pressability. This submits the mouse up event on the next run loop to let it go
+        // through the touch handler.
+        dispatch_async(dispatch_get_main_queue (), ^{
+          [targetSurfaceTouchHandler mouseUp:event];
+        });
+      } else if (event.type == NSEventTypeRightMouseUp) {
+        [targetSurfaceTouchHandler endFromEventTrackingRightMouseUp:event];
+      }
+    }
+  }
+
+  return event;
+}
+
+@end
+#endif // macOS]
 
 typedef NS_ENUM(NSInteger, RCTTouchEventType) {
   RCTTouchEventTypeTouchStart,
@@ -207,7 +266,15 @@ struct PointerHasher {
     self.cancelsTouchesInView = NO;
     self.delaysTouchesBegan = NO; // This is default value.
     self.delaysTouchesEnded = NO;
-#endif // [macOS]
+#else // [macOS
+    self.delaysPrimaryMouseButtonEvents = NO; // default is NO.
+    self.delaysSecondaryMouseButtonEvents = NO; // default is NO.
+    self.delaysOtherMouseButtonEvents = NO; // default is NO.
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                              selector:@selector(endOutsideViewMouseUp:)
+                                                  name:RCTSurfaceTouchHandlerOutsideViewMouseUpNotification
+                                                object:[RCTSurfaceTouchHandler class]];
+#endif // macOS]
 
     self.delegate = self;
 
@@ -220,6 +287,12 @@ struct PointerHasher {
 }
 
 RCT_NOT_IMPLEMENTED(-(instancetype)initWithTarget : (id)target action : (SEL)action)
+
+#if TARGET_OS_OSX // [macOS
+- (void)dealloc {
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+#endif // macOS]
 
 - (void)attachToView:(RCTUIView *)view // [macOS]
 {
@@ -585,5 +658,94 @@ RCT_NOT_IMPLEMENTED(-(instancetype)initWithTarget : (id)target action : (SEL)act
   [self setEnabled:NO];
   [self setEnabled:YES];
 }
+
+#if TARGET_OS_OSX // [macOS
++ (instancetype)surfaceTouchHandlerForEvent:(NSEvent *)event {
+  RCTPlatformView *hitView = [event.window.contentView.superview hitTest:event.locationInWindow];
+  return [self surfaceTouchHandlerForView:hitView];
+}
+
++ (instancetype)surfaceTouchHandlerForView:(RCTPlatformView *)view {
+  if ([view isKindOfClass:[RCTSurfaceHostingView class]]) {
+    // The RCTSurfaceTouchHandler is attached to surface's view.
+    view = (RCTPlatformView *)(((RCTSurfaceHostingView *)view).surface.view);
+  }
+
+  while (view) {
+    for (NSGestureRecognizer *gestureRecognizer in view.gestureRecognizers) {
+      if ([gestureRecognizer isKindOfClass:[self class]]) {
+        return (RCTSurfaceTouchHandler *)gestureRecognizer;
+      }
+    }
+
+    view = view.superview;
+  }
+
+  return nil;
+}
+
++ (void)notifyOutsideViewMouseUp:(NSEvent *)event {
+  [[NSNotificationCenter defaultCenter] postNotificationName:RCTSurfaceTouchHandlerOutsideViewMouseUpNotification
+                                                      object:self
+                                                    userInfo:@{@"event": event}];
+}
+
+- (void)endOutsideViewMouseUp:(NSNotification *)notification {
+  NSEvent *event = notification.userInfo[@"event"];
+
+  auto iterator = _activeTouches.find(event.eventNumber);
+  if (iterator == _activeTouches.end()) {
+    // A contextual menu click would generate a mouse up with a diffrent event
+    // and leave a touchable/pressable session open. This would cause touch end
+    // events from a modal window to end the touchable/pressable session and
+    // potentially trigger an onPress event. Hence the need to reset and cancel
+    // that session when a mouse up event was detected outside the touch handler
+    // view bounds.
+    [self reset];
+    return;
+  }
+
+  [self cancelTouchWithEvent:event];
+}
+
+- (void)endFromEventTrackingLeftMouseUp:(NSEvent *)event
+{
+  auto iterator = _activeTouches.find(event.eventNumber);
+  if (iterator == _activeTouches.end()) {
+    return;
+  }
+
+  [self cancelTouchWithEvent:event];
+}
+
+- (void)endFromEventTrackingRightMouseUp:(NSEvent *)event
+{
+  auto iterator = _activeTouches.find(event.eventNumber);
+  if (iterator == _activeTouches.end()) {
+    return;
+  }
+
+  [self cancelTouchWithEvent:event];
+}
+
+- (void)cancelTouchWithEvent:(NSEvent *)event
+{
+  NSSet *touches = [NSSet setWithObject:event];
+  [self _updateTouches:touches withEvent:event];
+  [self _dispatchActiveTouches:[self _activeTouchesFromTouches:touches] eventType:RCTTouchEventTypeTouchCancel];
+  [self _unregisterTouches:touches];
+
+  self.state = NSGestureRecognizerStateCancelled;
+}
+
+// (Note this is not an issue for left clicks: context menu on left clicks is only shown
+// on LeftMouseUp)
+- (void)willShowMenuWithEvent:(NSEvent *)event
+{
+  if (event.type == NSEventTypeRightMouseDown) {
+    [self cancelTouchWithEvent:event];
+  }
+}
+#endif // macOS]
 
 @end
