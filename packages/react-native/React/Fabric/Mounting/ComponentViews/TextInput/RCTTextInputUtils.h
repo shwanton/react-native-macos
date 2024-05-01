@@ -35,9 +35,7 @@ UITextAutocapitalizationType RCTUITextAutocapitalizationTypeFromAutocapitalizati
 
 UIKeyboardAppearance RCTUIKeyboardAppearanceFromKeyboardAppearance(
     facebook::react::KeyboardAppearance keyboardAppearance);
-#endif
 
-#if !TARGET_OS_OSX // [macOS]
 UITextSpellCheckingType RCTUITextSpellCheckingTypeFromOptionalBool(std::optional<bool> spellCheck);
 
 UITextFieldViewMode RCTUITextFieldViewModeFromTextInputAccessoryVisibilityMode(

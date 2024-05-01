@@ -107,9 +107,7 @@ UIKeyboardAppearance RCTUIKeyboardAppearanceFromKeyboardAppearance(KeyboardAppea
       return UIKeyboardAppearanceDark;
   }
 }
-#endif
 
-#if !TARGET_OS_OSX // [macOS]
 UITextSpellCheckingType RCTUITextSpellCheckingTypeFromOptionalBool(std::optional<bool> spellCheck)
 {
   return spellCheck.has_value() ? (*spellCheck ? UITextSpellCheckingTypeYes : UITextSpellCheckingTypeNo)
