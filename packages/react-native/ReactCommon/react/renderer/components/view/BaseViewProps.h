@@ -52,7 +52,7 @@ class BaseViewProps : public YogaStylableProps, public AccessibilityProps {
   Float shadowOpacity{};
   Float shadowRadius{3};
   
-  Cursor cursor{};
+  std::optional<Cursor> cursor{};
 
   // Transform
   Transform transform{};
