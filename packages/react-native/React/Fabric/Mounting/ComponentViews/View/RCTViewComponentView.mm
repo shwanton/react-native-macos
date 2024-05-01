@@ -37,12 +37,12 @@ inline NSCursor* RCTNSCursorFromCursor(facebook::react::Cursor cursorValue) {
   NSCursor *cursor = nil;
   
   switch (cursorValue) {
-    case Cursor::Arrow:
-      cursor = [NSCursor arrowCursor];
-      break;
-    case Cursor::ClosedHand:
-      cursor = [NSCursor closedHandCursor];
-      break;
+//    case Cursor::Arrow:
+//      cursor = [NSCursor arrowCursor];
+//      break;
+//    case Cursor::ClosedHand:
+//      cursor = [NSCursor closedHandCursor];
+//      break;
     case Cursor::ContextualMenu:
       cursor = [NSCursor contextualMenuCursor];
       break;
@@ -52,45 +52,45 @@ inline NSCursor* RCTNSCursorFromCursor(facebook::react::Cursor cursorValue) {
     case Cursor::DisappearingItem:
       cursor = [NSCursor disappearingItemCursor];
       break;
-    case Cursor::DragCopy:
-      cursor = [NSCursor dragCopyCursor];
-      break;
-    case Cursor::DragLink:
-      cursor = [NSCursor dragLinkCursor];
-      break;
-    case Cursor::IBeam:
-      cursor = [NSCursor IBeamCursor];
-      break;
-    case Cursor::IBeamCursorForVerticalLayout:
-      cursor = [NSCursor IBeamCursorForVerticalLayout];
-      break;
-    case Cursor::OpenHand:
-      cursor = [NSCursor openHandCursor];
-      break;
-    case Cursor::OperationNotAllowed:
-      cursor = [NSCursor operationNotAllowedCursor];
-      break;
-    case Cursor::PointingHand:
-      cursor = [NSCursor pointingHandCursor];
-      break;
-    case Cursor::ResizeDown:
-      cursor = [NSCursor resizeDownCursor];
-      break;
-    case Cursor::ResizeLeft:
-      cursor = [NSCursor resizeLeftCursor];
-      break;
-    case Cursor::ResizeLeftRight:
-      cursor = [NSCursor resizeLeftRightCursor];
-      break;
-    case Cursor::ResizeRight:
-      cursor = [NSCursor resizeRightCursor];
-      break;
-    case Cursor::ResizeUp:
-      cursor = [NSCursor resizeUpCursor];
-      break;
-    case Cursor::ResizeUpDown:
-      cursor = [NSCursor resizeUpDownCursor];
-      break;
+//    case Cursor::DragCopy:
+//      cursor = [NSCursor dragCopyCursor];
+//      break;
+//    case Cursor::DragLink:
+//      cursor = [NSCursor dragLinkCursor];
+//      break;
+//    case Cursor::IBeam:
+//      cursor = [NSCursor IBeamCursor];
+//      break;
+//    case Cursor::IBeamCursorForVerticalLayout:
+//      cursor = [NSCursor IBeamCursorForVerticalLayout];
+//      break;
+//    case Cursor::OpenHand:
+//      cursor = [NSCursor openHandCursor];
+//      break;
+//    case Cursor::OperationNotAllowed:
+//      cursor = [NSCursor operationNotAllowedCursor];
+//      break;
+//    case Cursor::PointingHand:
+//      cursor = [NSCursor pointingHandCursor];
+//      break;
+//    case Cursor::ResizeDown:
+//      cursor = [NSCursor resizeDownCursor];
+//      break;
+//    case Cursor::ResizeLeft:
+//      cursor = [NSCursor resizeLeftCursor];
+//      break;
+//    case Cursor::ResizeLeftRight:
+//      cursor = [NSCursor resizeLeftRightCursor];
+//      break;
+//    case Cursor::ResizeRight:
+//      cursor = [NSCursor resizeRightCursor];
+//      break;
+//    case Cursor::ResizeUp:
+//      cursor = [NSCursor resizeUpCursor];
+//      break;
+//    case Cursor::ResizeUpDown:
+//      cursor = [NSCursor resizeUpDownCursor];
+//      break;
   }
   
   return cursor;
@@ -175,18 +175,6 @@ inline NSCursor* RCTNSCursorFromCursor(facebook::react::Cursor cursorValue) {
 {
   _backgroundColor = backgroundColor;
 }
-
-#if TARGET_OS_OSX // [macOS
-- (void)resetCursorRects
-{
-  [self discardCursorRects];
-  if (_props->cursor != Cursor::Auto)
-  {
-    NSCursor *cursor = NSCursorFromCursor(_props->cursor);
-    [self addCursorRect:self.bounds cursor:cursor];
-  }
-}
-#endif // macOS]
 
 #pragma mark - RCTComponentViewProtocol
 
@@ -545,12 +533,12 @@ inline NSCursor* RCTNSCursorFromCursor(facebook::react::Cursor cursorValue) {
   }
   
   // `cursor`
-  if (oldViewProps.cursor != newViewProps.cursor) {
-    _cursor = nil;
-    if (newViewProps.cursor.has_value()) {
-      _cursor = RCTNSCursorFromCursor(newViewProps.cursor.value());
-    }
-  }
+//  if (oldViewProps.cursor != newViewProps.cursor) {
+//    _cursor = nil;
+//    if (newViewProps.cursor.has_value()) {
+//      _cursor = RCTNSCursorFromCursor(newViewProps.cursor.value());
+//    }
+//  }
 #endif // macOS]
 
   _needsInvalidateLayer = _needsInvalidateLayer || needsInvalidateLayer;
