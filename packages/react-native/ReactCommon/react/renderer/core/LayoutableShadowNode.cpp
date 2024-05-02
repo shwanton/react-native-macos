@@ -220,6 +220,17 @@ LayoutMetrics LayoutableShadowNode::computeRelativeLayoutMetrics(
           resultFrame, currentFrame.getCenter());
     }
 
+#if TARGET_OS_OSX // [macOS
+    auto parentShadowNode = (i + 1 < size)
+        ? traitCast<LayoutableShadowNode const *>(shadowNodeList.at(i + 1))
+        : nullptr;
+
+    if (parentShadowNode && !currentShadowNode->getIsVerticalAxisFlipped() && parentShadowNode->getIsVerticalAxisFlipped()) {
+      resultFrame.origin.y = currentFrame.size.height - (resultFrame.origin.y + resultFrame.size.height);
+    }
+#endif // macOS]
+    resultFrame.origin += currentFrame.origin;
+
     if (!shouldCalculateTransformedFrames && i != 0 &&
         policy.includeTransform) {
       resultFrame.origin += currentShadowNode->getContentOriginOffset();
@@ -234,6 +245,12 @@ LayoutMetrics LayoutableShadowNode::computeRelativeLayoutMetrics(
         return EmptyLayoutMetrics;
       }
     }
+
+#if TARGET_OS_OSX // [macOS
+    if (parentShadowNode && currentShadowNode->getIsVerticalAxisFlipped() && !parentShadowNode->getIsVerticalAxisFlipped()) {
+      resultFrame.origin.y = currentFrame.size.height - (resultFrame.origin.y + resultFrame.size.height);
+    }
+#endif // macOS]
   }
 
   // ------------------------------
@@ -315,6 +332,14 @@ Float LayoutableShadowNode::firstBaseline(Size /*size*/) const {
 Float LayoutableShadowNode::lastBaseline(Size /*size*/) const {
   return 0;
 }
+
+#if TARGET_OS_OSX // [macOS
+bool LayoutableShadowNode::getIsVerticalAxisFlipped() const {
+  // Views extending RCTUIView are set up to have their origin at the top of the
+  // view on macOS to match the default set up of UIKit UIView on iOS.
+  return false;
+}
+#endif // macOS]
 
 ShadowNode::Shared LayoutableShadowNode::findNodeAtPoint(
     const ShadowNode::Shared& node,

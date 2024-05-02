@@ -48,7 +48,7 @@ class LayoutableShadowNode : public ShadowNode {
     bool enableOverflowClipping{false};
   };
 
-  using UnsharedList = std::vector<LayoutableShadowNode*>;
+  using UnsharedList = std::vector<LayoutableShadowNode *>;
 
   /*
    * Returns layout metrics of a node represented as `descendantNodeFamily`
@@ -155,6 +155,14 @@ class LayoutableShadowNode : public ShadowNode {
    */
   virtual Float firstBaseline(Size size) const;
   virtual Float lastBaseline(Size size) const;
+
+#if TARGET_OS_OSX // [macOS
+  /*
+   * Indicates whether the the view uses a flipped vertical axis to lay out
+   * the direct children, placing the origin at the bottom of the view.
+   */
+  virtual bool getIsVerticalAxisFlipped() const;
+#endif // macOS]
 
   /*
    * Returns layoutable children to iterate on.

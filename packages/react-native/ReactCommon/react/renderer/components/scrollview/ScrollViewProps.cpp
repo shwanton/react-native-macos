@@ -118,6 +118,17 @@ ScrollViewProps::ScrollViewProps(
                     "indicatorStyle",
                     sourceProps.indicatorStyle,
                     {})),
+#if TARGET_OS_OSX // [macOS
+      inverted(
+          CoreFeatures::enablePropIteratorSetter
+              ? sourceProps.inverted
+              : convertRawProp(
+                    context,
+                    rawProps,
+                    "inverted",
+                    sourceProps.inverted,
+                    false)),
+#endif // macOS]
       keyboardDismissMode(
           CoreFeatures::enablePropIteratorSetter
               ? sourceProps.keyboardDismissMode
@@ -378,6 +389,9 @@ void ScrollViewProps::setProp(
     RAW_SET_PROP_SWITCH_CASE_BASIC(contentInsetAdjustmentBehavior);
     RAW_SET_PROP_SWITCH_CASE_BASIC(scrollToOverflowEnabled);
     RAW_SET_PROP_SWITCH_CASE_BASIC(isInvertedVirtualizedList);
+#if TARGET_OS_OSX // [macOS
+    RAW_SET_PROP_SWITCH_CASE_BASIC(inverted);
+#endif // macOS]
   }
 }
 
@@ -429,6 +443,12 @@ SharedDebugStringConvertibleList ScrollViewProps::getDebugProps() const {
               "indicatorStyle",
               indicatorStyle,
               defaultScrollViewProps.indicatorStyle),
+#if TARGET_OS_OSX // [macOS
+          debugStringConvertibleItem(
+              "inverted",
+              inverted,
+              defaultScrollViewProps.inverted),
+#endif // macOS]
           debugStringConvertibleItem(
               "keyboardDismissMode",
               keyboardDismissMode,

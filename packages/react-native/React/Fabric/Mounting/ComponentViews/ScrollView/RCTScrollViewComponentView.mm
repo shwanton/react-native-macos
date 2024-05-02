@@ -168,6 +168,38 @@ static void RCTSendScrollEventForNativeAnimations_DEPRECATED(RCTUIScrollView *sc
 #endif // [macOS]
 }
 
+#if TARGET_OS_OSX // [macOS
+- (void)viewDidMoveToWindow
+{
+  [super viewDidMoveToWindow];
+
+  NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+  if (self.window == nil) {
+    // Unregister scrollview's clipview bounds change notifications
+    [defaultCenter removeObserver:self
+                             name:NSViewBoundsDidChangeNotification
+                           object:_scrollView.contentView];
+  } else {
+    // Register for scrollview's clipview bounds change notifications so we can track scrolling
+    [defaultCenter addObserver:self
+                      selector:@selector(scrollViewDocumentViewBoundsDidChange:)
+                          name:NSViewBoundsDidChangeNotification
+                        object:_scrollView.contentView]; // NSClipView
+  }
+}
+
+- (void)setContentInset:(UIEdgeInsets)contentInset
+{
+  if (UIEdgeInsetsEqualToEdgeInsets(contentInset, _contentInset)) {
+    return;
+  }
+
+  _contentInset = contentInset;
+  _scrollView.contentInset = contentInset;
+  _scrollView.scrollIndicatorInsets = contentInset;
+}
+#endif // macOS]
+
 #if !TARGET_OS_OSX // [macOS]
 - (RCTGenericDelegateSplitter<id<UIScrollViewDelegate>> *)scrollViewDelegateSplitter
 {
@@ -282,7 +314,11 @@ static void RCTSendScrollEventForNativeAnimations_DEPRECATED(RCTUIScrollView *sc
   MAP_SCROLL_VIEW_PROP(zoomScale);
 
   if (oldScrollViewProps.contentInset != newScrollViewProps.contentInset) {
+#if !TARGET_OS_OSX // [macOS]
     _scrollView.contentInset = RCTUIEdgeInsetsFromEdgeInsets(newScrollViewProps.contentInset);
+#else // [macOS
+    self.contentInset = RCTUIEdgeInsetsFromEdgeInsets(newScrollViewProps.contentInset);
+#endif // macOS]
   }
 
   RCTEnhancedScrollView *scrollView = (RCTEnhancedScrollView *)_scrollView;
@@ -335,6 +371,10 @@ static void RCTSendScrollEventForNativeAnimations_DEPRECATED(RCTUIScrollView *sc
     scrollView.keyboardDismissMode = RCTUIKeyboardDismissModeFromProps(newScrollViewProps);
 #endif // [macOS] [visionOS]
   }
+  
+#if TARGET_OS_OSX // [macOS
+  MAP_SCROLL_VIEW_PROP(inverted);
+#endif // macOS]
 
   [super updateProps:props oldProps:oldProps];
 }
@@ -382,19 +422,27 @@ static void RCTSendScrollEventForNativeAnimations_DEPRECATED(RCTUIScrollView *sc
 
 - (void)mountChildComponentView:(RCTUIView<RCTComponentViewProtocol> *)childComponentView index:(NSInteger)index // [macOS]
 {
+#if !TARGET_OS_OSX // [macOS]
   [_containerView insertSubview:childComponentView atIndex:index];
   if (![childComponentView conformsToProtocol:@protocol(RCTCustomPullToRefreshViewProtocol)]) {
     _contentView = childComponentView;
   }
+#else // [macOS
+  [_scrollView setDocumentView:childComponentView];
+#endif // macOS]
 }
 
 - (void)unmountChildComponentView:(RCTUIView<RCTComponentViewProtocol> *)childComponentView index:(NSInteger)index // [macOS]
 {
+#if !TARGET_OS_OSX // [macOS]
   [childComponentView removeFromSuperview];
   if (![childComponentView conformsToProtocol:@protocol(RCTCustomPullToRefreshViewProtocol)] &&
       _contentView == childComponentView) {
     _contentView = nil;
   }
+#else // [macOS
+  [_scrollView setDocumentView:_containerView];
+#endif // macOS]
 }
 
 /*
@@ -469,6 +517,22 @@ static void RCTSendScrollEventForNativeAnimations_DEPRECATED(RCTUIScrollView *sc
   _firstVisibleView = nil;
   [super prepareForRecycle];
 }
+
+#if TARGET_OS_OSX // [macOS
+#pragma mark - NSScrollView scroll notification
+
+- (void)scrollViewDocumentViewBoundsDidChange:(__unused NSNotification *)notification
+{
+  RCTEnhancedScrollView *scrollView = _scrollView;
+  
+  if (scrollView.centerContent) {
+    // Update content centering through contentOffset setter
+    [scrollView setContentOffset:scrollView.contentOffset];
+  }
+  
+  [self scrollViewDidScroll:scrollView];
+}
+#endif // macOS]
 
 #pragma mark - UIScrollViewDelegate
 
@@ -633,9 +697,7 @@ static void RCTSendScrollEventForNativeAnimations_DEPRECATED(RCTUIScrollView *sc
 
 - (void)flashScrollIndicators
 {
-#if !TARGET_OS_OSX // [macOS]
-  [_scrollView flashScrollIndicators];
-#endif // [macOS]
+  [(RCTEnhancedScrollView *)_scrollView flashScrollIndicators]; // [macOS]
 }
 
 - (void)scrollTo:(double)x y:(double)y animated:(BOOL)animated
@@ -735,7 +797,12 @@ static void RCTSendScrollEventForNativeAnimations_DEPRECATED(RCTUIScrollView *sc
   [self _forceDispatchNextScrollEvent];
 
 #if !TARGET_OS_OSX // [macOS]
-  [_scrollView setContentOffset:offset animated:animated];
+  if (_layoutMetrics.layoutDirection == LayoutDirection::RightToLeft) {
+    // Adjusting offset.x in right to left layout direction.
+    offset.x = self.contentSize.width - _scrollView.frame.size.width - offset.x;
+  }
+
+  [(RCTEnhancedScrollView *)_scrollView setContentOffset:offset animated:animated];
 #endif // [macOS]
 
   if (!animated) {
@@ -747,9 +814,7 @@ static void RCTSendScrollEventForNativeAnimations_DEPRECATED(RCTUIScrollView *sc
 
 - (void)zoomToRect:(CGRect)rect animated:(BOOL)animated
 {
-#if !TARGET_OS_OSX // [macOS]
-  [_scrollView zoomToRect:rect animated:animated];
-#endif // [macOS]
+  [(RCTEnhancedScrollView *)_scrollView zoomToRect:rect animated:animated]; // [macOS]
 }
 
 #if !TARGET_OS_OSX // [macOS]
